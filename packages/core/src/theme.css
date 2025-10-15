@@ -1,0 +1,10 @@
+@theme {
+  --color-primary: #00e6b8;
+  --color-secondary: #ffb74d;
+  --color-surface: #111111;
+  --color-text: #ffffff;
+  --radius-base: 0.5rem;
+  --radius-lg: 1rem;
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "Geist Mono", monospace;
+}

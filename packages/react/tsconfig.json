@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "nodenext",
+    "jsx": "react-jsx",
+    "outDir": "dist",
+    "noEmit": false
+  },
+  "include": ["src"]
+}

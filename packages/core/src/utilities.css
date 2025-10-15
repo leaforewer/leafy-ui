@@ -1,0 +1,17 @@
+@utility flex-center {
+  @apply flex items-center justify-center;
+}
+
+@layer utilities {
+  .leafy-container {
+    @apply max-w-[calc(100%_-_1rem)] mx-auto lg:max-w-7xl;
+  }
+
+  .leafy-btn {
+    @apply flex-center rounded-lg bg-neutral-800 text-white px-4 py-2 hover:scale-110 transition-all;
+  }
+
+  .leafy-btn-primary {
+    @apply bg-[--color-primary] text-black hover:brightness-110;
+  }
+}
