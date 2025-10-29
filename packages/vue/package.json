@@ -1,0 +1,31 @@
+{
+  "name": "@leafy-ui/vue",
+  "version": "0.1.1",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --external vue",
+    "dev": "tsup src/index.ts --format esm,cjs --dts --external vue --watch",
+    "check": "biome check ."
+  },
+  "peerDependencies": {
+    "vue": ">=3.0.0"
+  },
+  "dependencies": {
+    "@leafy-ui/core": "workspace:^"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@vue/tsconfig": "^0.7.0",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.3",
+    "vue": "^3.5.12"
+  }
+}

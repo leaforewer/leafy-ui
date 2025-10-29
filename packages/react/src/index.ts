@@ -1,4 +1,5 @@
-export * from "./components/Button";
+export * from "./components/AnimatedLetters";
+export * from "./components/SmallImageCarousel";
 
 export const LeafyReact = {
   name: "@leafy-ui/react",
