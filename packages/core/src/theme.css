@@ -1,10 +1,27 @@
 @theme {
-  --color-primary: #00e6b8;
-  --color-secondary: #ffb74d;
-  --color-surface: #111111;
-  --color-text: #ffffff;
+  --color-primary: var(--color-lime-300);
+  --color-primary-content: var(--color-neutral-800);
+  --color-secondary: #3b82f6;
+  --color-danger: #ef4444;
+  --color-warning: #f59e0b;
+  --color-success: #22c55e;
   --radius-base: 0.5rem;
   --radius-lg: 1rem;
   --font-sans: "Inter", sans-serif;
   --font-mono: "Geist Mono", monospace;
+
+  --animation-leaf-fade-slide-in: leaf-fade-slide-in 0.4s
+    cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  --animation-leaf-slide-in: leaf-slide-in 0.4s cubic-bezier(0.22, 1, 0.36, 1)
+    forwards;
+  --animation-leaf-fade-in: leaf-fade-in 0.4s cubic-bezier(0.22, 1, 0.36, 1)
+    forwards;
+  --animation-leaf-scale-in: leaf-scale-in 0.4s cubic-bezier(0.22, 1, 0.36, 1)
+    forwards;
+  --animation-leaf-slide-right: leaf-slide-right 0.4s
+    cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  --animation-leaf-fade-up: leaf-fade-up 0.4s cubic-bezier(0.22, 1, 0.36, 1)
+    forwards;
+
+  --ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
 }

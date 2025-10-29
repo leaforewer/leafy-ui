@@ -1,4 +1,7 @@
 packages:
-  - "packages/*"
-  - "apps/*"
-  - "playground"
+  - packages/*
+  - apps/*
+  - playground
+
+overrides:
+  core: link:C:/Users/leafo/AppData/Local/pnpm/global/5/node_modules/@leafy-ui/core

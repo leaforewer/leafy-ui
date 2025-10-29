@@ -1,28 +1,30 @@
 {
-    "name": "leafy-ui",
-    "private": true,
-    "packageManager": "pnpm@10.18.3",
-    "scripts": {
-        "dev": "turbo run dev",
-        "build": "turbo run build",
-        "lint": "biome check .",
-        "format": "biome format --write .",
-        "check": "biome check --write .",
-        "playground": "turbo run dev --filter playground",
-        "version-packages": "changeset version",
-        "release": "changeset publish"
-    },
-    "devDependencies": {
-        "@biomejs/biome": "^2.2.6",
-        "@changesets/cli": "^2.29.7",
-        "@types/react": "^19.2.2",
-        "@types/react-dom": "^19.2.2",
-        "tsup": "^8.5.0",
-        "turbo": "^2.5.8",
-        "typescript": "^5.9.3"
-    },
-    "dependencies": {
-        "react": "19.2.0",
-        "react-dom": "19.2.0"
-    }
+  "name": "leafy-ui",
+  "private": true,
+  "packageManager": "pnpm@10.18.3",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "check": "biome check --write .",
+    "playground": "turbo run dev --filter @leafy-ui/playground",
+    "playground:start": "turbo run dev --filter @leafy-ui/playground",
+    "version-packages": "changeset version",
+    "release": "changeset publish"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.1",
+    "@changesets/cli": "^2.29.7",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "tsup": "^8.5.0",
+    "turbo": "^2.5.8",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "core": "link:C:/Users/leafo/AppData/Local/pnpm/global/5/node_modules/@leafy-ui/core",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  }
 }

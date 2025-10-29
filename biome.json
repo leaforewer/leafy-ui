@@ -1,8 +1,14 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.2.6/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.1/schema.json",
   "formatter": {
     "indentStyle": "space",
-    "indentWidth": 2
+    "indentWidth": 2,
+    "formatWithErrors": true
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
   },
   "linter": {
     "rules": {
@@ -16,15 +22,13 @@
       },
       "correctness": {
         "noUnusedVariables": "off"
+      },
+      "style": {
+        "noDescendingSpecificity": "off"
       }
     }
   },
   "files": {
-    "includes": ["**/*.{ts,tsx,js,jsx,css}"],
-    "experimentalScannerIgnores": [
-      "node_modules",
-      "packages/*/dist",
-      "**/*.d.ts"
-    ]
+    "includes": ["**", "!**/dist", "!apps/playground"]
   }
 }
