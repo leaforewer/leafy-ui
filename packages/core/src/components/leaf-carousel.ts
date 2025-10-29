@@ -237,20 +237,10 @@ declare global {
     "leaf-carousel": LeafCarousel;
   }
 }
-
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      "leaf-carousel": HTMLElement & {
-        infinite?: boolean;
-        snap?: boolean;
-        dragSensitivity?: number;
-        lerpFactor?: number;
-        snapStrength?: number;
-        speedDecay?: number;
-        controls?: boolean;
-        buttonClass?: string;
-      };
+      "leaf-carousel": /* biome-ignore lint:suspicious/noExplicitAny */ any;
     }
   }
 }
