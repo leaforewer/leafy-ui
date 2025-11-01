@@ -241,10 +241,10 @@
 
     &:is(details) {
       &::details-content {
-        @apply h-0 overflow-hidden duration-200 ease-standard;
+        @apply h-0 overflow-hidden;
         transition:
-          height 200ms,
-          content-visibility 200ms;
+          height 200ms ease-in-out,
+          content-visibility 200ms ease-in-out;
         transition-behavior: allow-discrete;
       }
 
@@ -670,6 +670,74 @@
 
     &.loading-xl {
       width: calc(var(--size-selector, 0.25rem) * 8);
+    }
+  }
+
+  .drawer {
+    & .drawer-toggle {
+      @apply appearance-none opacity-0 w-0 h-0 fixed;
+    }
+
+    & .drawer-content {
+      position: relative;
+      z-index: 1;
+      will-change: transform;
+      transform-style: preserve-3d;
+      isolation: isolate;
+    }
+
+    & .drawer-side {
+      @apply pointer-events-none z-10 overscroll-contain opacity-0 w-full h-dvh grid fixed top-0;
+
+      transition:
+        opacity 0.2s ease-out 0.1s allow-discrete,
+        visibility 0.3s ease-out 0.1s allow-discrete;
+      inset-inline-start: 0;
+      grid-template-rows: repeat(1, minmax(0, 1fr));
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+      grid-row-start: 1;
+      grid-column-start: 1;
+      place-items: flex-start start;
+
+      & .drawer-overlay {
+        @apply cursor-pointer sticky top-0 place-self-stretch opacity-0 bg-black/30;
+      }
+
+      & > * {
+        grid-row-start: 1;
+        grid-column-start: 1;
+      }
+
+      & > :not(.drawer-overlay) {
+        will-change: transform;
+        transition:
+          translate 0.3s ease-out,
+          width 0.2s ease-out;
+        translate: -100%;
+      }
+
+      & .menu {
+        @apply flex-col flex flex-wrap w-fit p-4 bg-white min-h-full dark:bg-neutral-900;
+      }
+    }
+
+    & .drawer-toggle:checked ~ .drawer-side {
+      @apply pointer-events-auto visible opacity-100 overflow-y-auto;
+
+      scrollbar-color: color-mix(in oklch, currentColor 35%, #0000)
+        oklch(0 0 0 / calc(var(--page-has-backdrop, 0) * 0.4));
+
+      & .drawer-overlay {
+        @apply opacity-100;
+      }
+
+      & > :not(.drawer-overlay) {
+        @apply translate-x-0;
+      }
+    }
+
+    &:where(.drawer-side) {
+      @apply overflow-hidden;
     }
   }
 }

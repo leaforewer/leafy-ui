@@ -21,13 +21,14 @@
   --main-btn-border-color: #000;
   --shadow-color: var(--color-neutral-900);
 
-  @apply relative rounded-base border-2 text-primary-content py-1.5 px-4 h-max cursor-pointer transition-all duration-100 ease-out;
+  @apply inline-block rounded-base border-2 text-primary-content py-1.5 px-4 h-max cursor-pointer;
 
   background-color: var(--main-btn-bg-color);
   border-color: var(--main-btn-border-color);
   box-shadow: 4px 4px 0 0 var(--shadow-color);
 
   &.bordered {
+    position: relative;
     --shadow-color: transparent;
     box-shadow: none;
 
@@ -44,14 +45,11 @@
 
   &.interactive {
     transition:
-      margin 100ms ease-out,
+      transform 100ms ease-out,
       box-shadow 100ms ease-out;
 
     &:hover {
-      margin-top: 2px;
-      margin-left: 2px;
-      margin-bottom: -2px;
-      margin-right: -2px;
+      transform: translate(2px, 2px);
       box-shadow: 2px 2px 0 0 var(--shadow-color);
 
       &.bordered::after {
@@ -60,12 +58,8 @@
       }
     }
 
-    &:active,
-    &.active {
-      margin-top: 4px;
-      margin-left: 4px;
-      margin-bottom: -4px;
-      margin-right: -4px;
+    &:active {
+      transform: translate(4px, 4px);
       box-shadow: 0 0 0 0 var(--shadow-color);
 
       &.bordered::after {
@@ -76,11 +70,9 @@
     }
   }
 
+  &:active,
   &.active {
-    margin-top: 4px;
-    margin-left: 4px;
-    margin-bottom: -4px;
-    margin-right: -4px;
+    transform: translate(4px, 4px);
     box-shadow: 0 0 0 0 var(--shadow-color);
 
     &.bordered::after {
