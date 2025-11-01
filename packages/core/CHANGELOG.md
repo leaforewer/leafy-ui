@@ -1,5 +1,11 @@
 # @leafy-ui/core
 
+## 0.3.0
+
+### Minor Changes
+
+- bbba032: fix: prevent layout shifting on button | new: Drawer component
+
 ## 0.2.0
 
 ### Minor Changes
