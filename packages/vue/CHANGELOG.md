@@ -1,5 +1,12 @@
 # @leafy-ui/vue
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [d1a4dc8]
+  - @leafy-ui/core@0.4.0
+
 ## 0.1.2
 
 ### Patch Changes

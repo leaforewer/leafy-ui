@@ -1,5 +1,11 @@
 # @leafy-ui/core
 
+## 0.4.0
+
+### Minor Changes
+
+- d1a4dc8: Dark theme & overall optimizations to components
+
 ## 0.3.0
 
 ### Minor Changes
