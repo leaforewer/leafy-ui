@@ -20,7 +20,7 @@
   ],
   "scripts": {
     "build": "tsup",
-    "dev": "tsup --watch",
+    "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
     "check": "biome check ."
   },
   "publishConfig": {

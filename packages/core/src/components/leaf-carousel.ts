@@ -61,32 +61,40 @@ export class LeafCarousel extends LitElement {
       transition: transform 0s;
     }
 
-    /* --- Controls --- */
     .controls {
       position: absolute;
       inset: 0;
-      pointer-events: none;
       display: flex;
       justify-content: space-between;
       align-items: center;
       opacity: 0;
       transition: opacity 0.3s ease;
+      pointer-events: none; /* only buttons inside re-enable */
     }
     :host(:hover) .controls {
       opacity: 1;
     }
+
+    ::slotted([slot="prev-button"]),
+    ::slotted([slot="next-button"]) {
+      pointer-events: all;
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     button {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 40px;
-        height: 40px;        
+      all: unset;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
       pointer-events: all;
       background: rgba(255, 255, 255, 0.7);
-      border: none;
       border-radius: 9999px;
       font-size: 1.25rem;
-      line-height: 1;
       cursor: pointer;
       transition: background 0.2s ease;
     }
@@ -117,20 +125,25 @@ export class LeafCarousel extends LitElement {
       this.controls
         ? html`
           <div class="controls">
-            <button
-              class=${this.buttonClass}
-              @click=${this.goToPrev}
-              aria-label="Previous"
-            >
-              <slot name="prev-icon">‹</slot>
-            </button>
-            <button
-              class=${this.buttonClass}
-              @click=${this.goToNext}
-              aria-label="Next"
-            >
-              <slot name="next-icon">›</slot>
-            </button>
+            <slot name="prev-button" @click=${() => this.goToPrev()}>
+              <button
+                class=${this.buttonClass || "default-btn"}
+                @click=${this.goToPrev}
+                aria-label="Previous"
+              >
+                <slot name="prev-icon">‹</slot>
+              </button>
+            </slot>
+
+            <slot name="next-button" @click=${() => this.goToNext()}>
+              <button
+                class=${this.buttonClass || "default-btn"}
+                @click=${this.goToNext}
+                aria-label="Next"
+              >
+                <slot name="next-icon">›</slot>
+              </button>
+            </slot>
           </div>
         `
         : null
@@ -199,7 +212,6 @@ export class LeafCarousel extends LitElement {
       }
 
       this.current = damp(this.current, this.target, 1 / this.lerpFactor, dt);
-
       this.layout();
     };
     this.raf = requestAnimationFrame(loop);
@@ -214,7 +226,6 @@ export class LeafCarousel extends LitElement {
 
       let rel = i + this.current;
       if (this.infinite) rel = symmetricMod(this.current + i, n) - i;
-
       const x = rel * w;
       el.style.transform = `translateX(${x}px)`;
     }
@@ -236,8 +247,6 @@ declare global {
   interface HTMLElementTagNameMap {
     "leaf-carousel": LeafCarousel;
   }
-}
-declare global {
   namespace JSX {
     interface IntrinsicElements {
       "leaf-carousel": /* biome-ignore lint:suspicious/noExplicitAny */ any;
