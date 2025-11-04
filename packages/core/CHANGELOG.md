@@ -1,5 +1,11 @@
 # @leafy-ui/core
 
+## 0.5.1
+
+### Patch Changes
+
+- hotfix(product-image-slider): add images props and fallback child elements
+
 ## 0.5.0
 
 ### Minor Changes

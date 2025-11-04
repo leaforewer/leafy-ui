@@ -4,15 +4,38 @@ import { customElement, property, state } from "lit/decorators.js";
 type TrackStyle = "pill" | "line" | "skewed" | "dot";
 type Img = { url: string; alt?: string };
 
+const jsonConv = {
+  fromAttribute(value?: string | null): Img[] {
+    if (!value) return [];
+    try {
+      const arr = JSON.parse(value) as Array<Partial<Img> & { src?: string }>;
+      if (!Array.isArray(arr)) return [];
+      return arr
+        .map((i) => ({
+          url: (i.url ?? i.src ?? "") as string,
+          alt: i.alt ?? "",
+        }))
+        .filter((i) => !!i.url);
+    } catch {
+      return [];
+    }
+  },
+  toAttribute(value?: Img[] | null): string | null {
+    if (!value || !value.length) return null;
+    return JSON.stringify(value.map((i) => ({ url: i.url, alt: i.alt })));
+  },
+};
+
 @customElement("product-image-slider")
 export class ProductImageSlider extends LitElement {
   static styles = css`:host{display:block}`;
 
-  @property({ attribute: false }) images: Img[] = [];
+  @property({ attribute: "data-images", converter: jsonConv }) images: Img[] =
+    [];
+
   @property({ type: Boolean, reflect: true }) tracks = true;
   @property({ type: Boolean, reflect: true }) strip = false;
   @property({ type: String, reflect: true }) trackstyle: TrackStyle = "dot";
-
   @property({ type: Boolean, reflect: true }) zoom = false;
   @property({ type: Boolean, reflect: true }) zoomBtn = false;
 
@@ -25,6 +48,33 @@ export class ProductImageSlider extends LitElement {
 
   createRenderRoot() {
     return this;
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    if (!this.images?.length) this.loadFromChildImgs();
+  }
+
+  private loadFromChildImgs() {
+    const nodes = Array.from(
+      this.querySelectorAll(":scope > img"),
+    ) as HTMLImageElement[];
+    if (!nodes.length) return;
+
+    const imgs = nodes
+      .map((img) => ({
+        url: img.getAttribute("src") ?? "",
+        alt: img.getAttribute("alt") ?? "",
+      }))
+      .filter((i) => !!i.url);
+
+    if (!imgs.length) return;
+
+    this.images = imgs;
+
+    for (const el of nodes) {
+      el.style.display = "none";
+    }
   }
 
   private get zoomEnabled() {
@@ -85,14 +135,8 @@ export class ProductImageSlider extends LitElement {
       );
     }
 
-    if (
-      this.zoomEnabled &&
-      this.zoom &&
-      this.tapCandidate &&
-      !this.uiTarget(e)
-    ) {
+    if (this.zoomEnabled && this.zoom && this.tapCandidate && !this.uiTarget(e))
       this.toggleFullscreen();
-    }
 
     this.startX = null;
     this.dragX = 0;
