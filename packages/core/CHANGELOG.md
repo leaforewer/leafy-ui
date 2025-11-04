@@ -1,5 +1,11 @@
 # @leafy-ui/core
 
+## 0.5.0
+
+### Minor Changes
+
+- New lit component: product-image-slider | refactor: enhanced leaf-carousel | added scroll-based animation utilities + optimization
+
 ## 0.4.0
 
 ### Minor Changes
