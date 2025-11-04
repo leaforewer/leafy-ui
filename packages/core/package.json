@@ -1,40 +1,46 @@
 {
   "name": "@leafy-ui/core",
   "version": "0.4.0",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
-  "style": "dist/index.css",
+  "description": "Leafy UI core styles and web components",
+  "license": "MIT",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": true,
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "style": "./dist/index.css",
   "exports": {
     ".": {
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "default": "./dist/index.mjs"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     },
+    "./index.css": "./dist/index.css",
     "./style": "./dist/index.css",
-    "./components/*": "./dist/components/*.mjs"
+    "./components/*": {
+      "types": "./dist/components/*.d.ts",
+      "import": "./dist/components/*.js",
+      "default": "./dist/components/*.js"
+    },
+    "./package.json": "./package.json"
   },
-  "files": [
-    "dist",
-    "src"
-  ],
   "scripts": {
     "build": "tsup",
-    "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
+    "dev": "tsup --watch",
     "check": "biome check ."
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "peerDependencies": {
     "tailwindcss": ">=4.0.0"
   },
+  "dependencies": {
+    "lit": "^3.3.1"
+  },
   "devDependencies": {
     "@types/web": "^0.0.284",
     "glob": "^11.0.3",
-    "tailwindcss": "4.0.0"
-  },
-  "dependencies": {
-    "lit": "^3.3.1"
+    "tailwindcss": "4.0.0",
+    "tsup": "^8.5.0"
   }
 }

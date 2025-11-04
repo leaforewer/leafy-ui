@@ -14,6 +14,14 @@
     animation: var(--anim) var(--stagger-duration) var(--stagger-ease) forwards;
     animation-delay: calc(var(--i, 0) * var(--stagger-delay));
   }
+
+  &.leaf-anim-slide-in {
+    --anim: leaf-fade-slide-in;
+  }
+
+  &.leaf-anim-scale-in {
+    --anim: leaf-scale-in;
+  }
 }
 
 @utility pop-btn {
@@ -27,60 +35,19 @@
   background-color: var(--btn-bg);
   border-color: var(--btn-border);
   box-shadow: 4px 4px 0 0 var(--btn-shadow);
+  transition:
+    transform 100ms ease-out,
+    box-shadow 100ms ease-out;
 
-  &.bordered {
-    position: relative;
-    --shadow-color: transparent;
-    box-shadow: none;
-
-    &::after {
-      content: "";
-      @apply w-full h-[calc(100%+3px)] top-1 left-1.5 -z-1 absolute;
-      border: 2px solid var(--btn-border);
-      border-radius: inherit;
-      z-index: -1;
-      transition:
-        top 100ms ease-out,
-        left 100ms ease-out;
-    }
+  &:hover:not(:disabled):not(.disabled) {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 0 var(--btn-shadow);
   }
 
-  &.interactive {
-    transition:
-      transform 100ms ease-out,
-      box-shadow 100ms ease-out;
-
-    &:hover {
-      transform: translate(2px, 2px);
-      box-shadow: 2px 2px 0 0 var(--btn-shadow);
-
-      &.bordered::after {
-        top: 2px;
-        left: 5px;
-      }
-    }
-
-    &:active {
-      transform: translate(4px, 4px);
-      box-shadow: 0 0 0 0 var(--btn-shadow);
-
-      &.bordered::after {
-        top: 0;
-        left: 0;
-        height: 100%;
-      }
-    }
-  }
-
-  &.active {
+  &:active:not(:disabled):not(.disabled),
+  &.active:not(:disabled):not(.disabled) {
     transform: translate(4px, 4px);
     box-shadow: 0 0 0 0 var(--btn-shadow);
-
-    &.bordered::after {
-      top: 0;
-      left: 0;
-      height: 100%;
-    }
   }
 
   &:disabled,
@@ -88,11 +55,74 @@
     --btn-bg: #f3f4f6;
     --btn-border: #d1d5db;
     --btn-shadow: #9ca3af;
-    @apply text-neutral-400;
+    @apply text-neutral-400 cursor-default;
   }
 }
 
+@utility btn {
+  --btn-bg: var(--color-surface);
+  --btn-fg: var(--color-fg);
+  --btn-p: 1rem;
+  --size: calc(var(--spacing, 0.25rem) * 10);
+  @apply inline-flex rounded-md gap-1 justify-center items-center shrink-0 flex-nowrap cursor-pointer text-center align-middle select-none shadow transition duration-200 ease-standard;
+
+  background-color: var(--btn-bg);
+  color: var(--btn-fg);
+  height: var(--size);
+  padding: 0 var(--btn-p);
+  font-size: var(--font-size, 0.875rem);
+
+  &:hover {
+    background-color: color-mix(in oklab, var(--btn-bg), #000 7%);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: color-mix(in oklab, var(--btn-bg), #fff 7%);
+    }
+  }
+
+  &:active {
+    @apply translate-y-0.5;
+    background-color: color-mix(in oklab, var(--btn-bg), #000 5%);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: color-mix(in oklab, var(--btn-bg), #fff 5%);
+    }
+  }
+
+  &.btn-xs {
+    --font-size: 0.6875rem;
+    --btn-p: 0.675rem;
+    --size: calc(var(--spacing, 0.25rem) * 7);
+  }
+
+  &.btn-sm {
+    --font-size: 0.75rem;
+    --btn-p: 0.75rem;
+    --size: calc(var(--spacing, 0.25rem) * 8);
+  }
+
+  &.btn-lg {
+    --font-size: 1.125rem;
+    --btn-p: 1.25rem;
+    --size: calc(var(--spacing, 0.25rem) * 12);
+  }
+
+  &.btn-xl {
+    --font-size: 1.375rem;
+    --btn-p: 1.5rem;
+    --size: calc(var(--spacing, 0.25rem) * 14);
+  }
+}
+
+@utility btn-* {
+  --btn-bg: --value(--color-*, [color]);
+}
+
 @layer utilities {
+  *:has(.pop-btn.bordered) {
+    isolation: isolate;
+  }
+
   .leafy-container {
     @apply max-w-[calc(100%_-_1rem)] mx-auto lg:max-w-7xl;
   }
@@ -116,7 +146,28 @@
     }
   }
 
-  *:has(.pop-btn.bordered) {
-    isolation: isolate;
+  .reveal-up {
+    --reveal-anim: leaf-reveal-up;
+  }
+
+  .reveal-left {
+    --reveal-anim: leaf-slide-in;
+  }
+
+  .reveal-fade {
+    --reveal-anim: leaf-fade-in;
+  }
+
+  @supports (animation-timeline: view()) {
+    .reveal-up,
+    .reveal-left,
+    .reveal-fade {
+      --reveal-delay: 100ms;
+      opacity: 0;
+      animation: var(--reveal-anim) 1s var(--ease-standard) both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 40%;
+      animation-delay: var(--reveal-delay);
+    }
   }
 }

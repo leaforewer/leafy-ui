@@ -1,9 +1,6 @@
 @layer components {
   .product-image-carousel {
-    --height: calc(var(--spacing) * 52);
-
-    @apply relative overflow-hidden w-full;
-    height: var(--height);
+    @apply relative overflow-hidden w-full h-52;
 
     & .carousel-wrapper {
       @apply absolute inset-0 overflow-hidden rounded;
@@ -11,43 +8,59 @@
       .carousel {
         @apply flex translate-x-0 transition-transform duration-300 ease-out h-full;
 
-        .carousel-item {
+        .carousel-item,
+        > * {
           @apply flex-shrink-0 w-full relative;
+        }
 
-          img {
-            @apply object-cover w-full h-full;
-          }
+        .carousel-item img,
+        > * img {
+          @apply object-cover w-full h-full;
         }
       }
     }
 
     .carousel-tracks {
-      @apply absolute bottom-1 left-1/2 transform -translate-x-1/2 flex space-x-1 z-10;
+      @apply absolute bottom-1 left-1/2 -translate-x-1/2 flex space-x-1 z-10;
 
       .carousel-track {
-        --bg-color: #000;
+        --bg-color: var(--color-bg);
         background: var(--bg-color);
+        @apply transition-all duration-200 ease-out;
 
         &.pill {
-          @apply w-4 h-2 rounded-full transition-all duration-200 hover:bg-white;
+          @apply w-4 h-2 rounded-full;
         }
 
         &.line {
-          @apply w-6 h-1 rounded-full transition-all duration-200 hover:bg-white;
+          @apply w-6 h-1 rounded-full;
         }
 
         &.skewed {
-          @apply w-4 h-1.5 -skew-x-40 transition-all duration-200 hover:bg-white;
+          @apply w-4 h-1.5 -skew-x-40;
         }
 
         &.dot {
-          @apply w-2 h-2 rounded-full border border-black transition-all duration-200 hover:bg-white;
+          @apply w-2 h-2 rounded-full border border-black;
         }
 
         &.active {
-          @apply bg-success border-black;
+          --bg-color: var(--color-success);
+          @apply border-black;
         }
       }
+    }
+
+    .carousel-zoom {
+      @apply absolute top-2 right-2 z-10 w-8 h-8 rounded-md bg-black/60 text-white flex items-center justify-center transition-colors;
+    }
+
+    .carousel-zoom:hover {
+      @apply bg-black/80;
+    }
+
+    &:fullscreen {
+      @apply inset-0 w-screen h-screen bg-black;
     }
 
     &[data-carousel="true"] {
@@ -57,6 +70,24 @@
         @apply touch-pan-x;
       }
     }
+  }
+
+  .carousel-strip {
+    @apply mt-2 w-full flex gap-1 justify-center;
+  }
+
+  .carousel-thumb {
+    @apply w-12 h-12 rounded-md overflow-hidden border border-black/20 p-0 bg-transparent;
+  }
+
+  .carousel-thumb img {
+    @apply w-full h-full object-cover;
+  }
+
+  .carousel-thumb.active {
+    --border-color: var(--color-success);
+    @apply outline outline-2 outline-offset-2;
+    outline-color: var(--border-color);
   }
 
   .hover-gallery {
@@ -764,6 +795,193 @@
       @apply overflow-hidden;
     }
   }
+
+  .tabs {
+    --tabs-height: auto;
+    --tabs-direction: row;
+    --tab-height: calc(var(--spacing, 0.25rem) * 10);
+    height: var(--tabs-height);
+    flex-direction: var(--tabs-direction);
+    @apply flex flex-wrap;
+
+    & .tab {
+      --tab-p: 0.75rem;
+      --tab-bg: var(--color-neutral-100);
+      --tab-border-color: var(--color-neutral-300);
+      --tab-radius-ss: 0;
+      --tab-radius-se: 0;
+      --tab-radius-es: 0;
+      --tab-radius-ee: 0;
+      --tab-order: 0;
+      --tab-radius-min: calc(0.75rem - var(--border));
+      --tab-radius-limit: min(var(--radius-field), var(--tab-radius-min));
+      --tab-radius-grad:
+        #0000 calc(69% - var(--border)), var(--tab-border-color)
+        calc(calc(69% - var(--border)) + 0.25px), var(--tab-border-color)
+        calc(calc(69% - var(--border)) + var(--border)), var(--tab-bg)
+        calc(calc(69% - var(--border)) + var(--border) + 0.25px);
+      order: var(--tab-order);
+      height: var(--tab-height);
+      border-color: #0000;
+      padding-inline-start: var(--tab-p);
+      padding-inline-end: var(--tab-p);
+      font-size: 0.875rem;
+      @apply cursor-pointer appearance-none text-center select-none flex-wrap inline-flex justify-center items-center relative;
+
+      &:is(input[type="radio"]) {
+        @apply min-w-fit;
+      }
+
+      &:is(input[type="radio"]):after {
+        --tw-content: attr(aria-label);
+        content: var(--tw-content);
+      }
+    }
+
+    & .tab-content {
+      order: var(--tabcontent-order);
+      --tabcontent-radius-ss: var(--radius-md);
+      --tabcontent-radius-se: var(--radius-md);
+      --tabcontent-radius-es: var(--radius-md);
+      --tabcontent-radius-ee: var(--radius-md);
+      --tabcontent-order: 1;
+      width: 100%;
+      margin: var(--tabcontent-margin);
+      border-color: #0000;
+      border-width: var(--border);
+      border-start-start-radius: var(--tabcontent-radius-ss);
+      border-start-end-radius: var(--tabcontent-radius-se);
+      border-end-end-radius: var(--tabcontent-radius-ee);
+      border-end-start-radius: var(--tabcontent-radius-es);
+      display: none;
+    }
+
+    :is(
+        .tab:checked,
+        .tab:is(label:has(:checked)),
+        .tab:is(
+            .tab-active,
+            [aria-selected="true"],
+            [aria-current="true"],
+            [aria-current="page"]
+          )
+      )
+      + .tab-content {
+      @apply block;
+    }
+
+    &.tabs-border {
+      --indicator-color: currentColor;
+      --indicator-thickness: 2px;
+      position: relative;
+
+      & .tab {
+        anchor-name: none;
+      }
+
+      & .tab:checked,
+      & .tab:is(label:has(:checked)) {
+        anchor-name: --active-tab;
+      }
+
+      &::after {
+        content: "";
+        position: absolute;
+        position-anchor: --active-tab;
+        left: anchor(left);
+        width: anchor-size(width);
+        top: calc(anchor(bottom) - var(--indicator-thickness));
+        height: var(--indicator-thickness);
+        background: var(--indicator-color);
+        border-radius: 999px;
+        transition:
+          left 0.25s ease,
+          width 0.25s ease,
+          top 0.25s ease,
+          background 0.25s ease;
+      }
+
+      & .tab-content {
+        --border: 0;
+      }
+
+      @supports not (position-anchor: --x) {
+        &::after {
+          display: none;
+        }
+      }
+    }
+
+    &.tabs-lift {
+      --lift-radius: var(--radius-field);
+      --lift-gap: 0;
+      --lift-border: var(--tab-border-color, var(--color-neutral-300));
+      position: relative;
+      gap: var(--lift-gap);
+      border-bottom: var(--border) solid var(--lift-border);
+
+      & .tab {
+        background: transparent;
+        border: var(--border) solid transparent;
+        border-bottom: none;
+        border-top-left-radius: var(--lift-radius);
+        border-top-right-radius: var(--lift-radius);
+        margin-bottom: calc(-1 * var(--border));
+        color: var(--tab-fg, var(--color-fg-muted));
+      }
+
+      & .tab:hover {
+        border-color: color-mix(in oklab, var(--lift-border) 60%, transparent);
+        background: color-mix(
+          in oklab,
+          var(--tab-bg, var(--color-neutral-100)) 40%,
+          transparent
+        );
+      }
+
+      &
+        :is(
+          .tab:checked,
+          .tab:is(label:has(:checked)),
+          .tab:is(
+              .tab-active,
+              [aria-selected="true"],
+              [aria-current="true"],
+              [aria-current="page"]
+            )
+        ) {
+        --border: 1px;
+        background: var(--tab-bg, var(--color-neutral-100));
+        border-color: var(--lift-border);
+        box-shadow: 0 1px 0 0 var(--tab-bg, var(--color-neutral-100));
+        color: var(--tab-fg-active, var(--color-fg));
+        z-index: 1;
+      }
+
+      & .tab-content {
+        --border: 1px;
+        border-color: var(--lift-border);
+        border-top-left-radius: var(--lift-radius);
+        border-top-right-radius: var(--lift-radius);
+      }
+
+      &
+        :is(
+          .tab:checked,
+          .tab:is(label:has(:checked)),
+          .tab:is(
+              .tab-active,
+              [aria-selected="true"],
+              [aria-current="true"],
+              [aria-current="page"]
+            )
+        )
+        + .tab-content {
+        margin-top: calc(-1 * var(--border));
+        border-top-color: var(--lift-border);
+      }
+    }
+  }
 }
 
 @utility pop-btn-* {
@@ -773,6 +991,56 @@
 @utility carousel-track-bg-* {
   .carousel-track {
     --bg-color: --value(--color-*, [color]);
+  }
+}
+
+@utility carousel-active-track-bg-* {
+  .carousel-track.active {
+    --bg-color: --value(--color-*, [color]);
+  }
+}
+
+@utility carousel-thumb-active-border-* {
+  .carousel-thumb.active {
+    --border-color: --value(--color-*, [color]);
+  }
+}
+
+@utility tabs-bg-* {
+  & .tab {
+    --tab-bg: --value(--color-*, [color]);
+  }
+}
+
+@utility tabs-border-* {
+  --tab-border-color: --value(--color-*, [color]);
+}
+
+@utility tabs-lift-border-* {
+  --lift-border: --value(--color-*, [color]);
+}
+
+@utility tabs-indicator-* {
+  --indicator-color: --value(--color-*, [color]);
+}
+
+@utility tabs-fg-* {
+  & .tab {
+    --tab-fg: --value(--color-*, [color]);
+  }
+}
+
+@utility tabs-fg-active-* {
+  &
+    .tab:is(
+      :checked,
+      label:has(:checked),
+      .tab-active,
+      [aria-selected="true"],
+      [aria-current="true"],
+      [aria-current="page"]
+    ) {
+    --tab-fg-active: --value(--color-*, [color]);
   }
 }
 
