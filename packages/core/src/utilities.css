@@ -64,7 +64,7 @@
   --btn-fg: var(--color-fg);
   --btn-p: 1rem;
   --size: calc(var(--spacing, 0.25rem) * 10);
-  @apply inline-flex rounded-md gap-1 justify-center items-center shrink-0 flex-nowrap cursor-pointer text-center align-middle select-none shadow transition duration-200 ease-standard;
+  @apply inline-flex relative overflow-hidden rounded-md gap-1 justify-center items-center shrink-0 flex-nowrap cursor-pointer text-center align-middle select-none shadow transition duration-200 ease-standard;
 
   background-color: var(--btn-bg);
   color: var(--btn-fg);
@@ -72,8 +72,28 @@
   padding: 0 var(--btn-p);
   font-size: var(--font-size, 0.875rem);
 
+  &::before {
+    content: "";
+    width: 125%;
+    height: 200%;
+    position: absolute;
+    background-color: white;
+    border-radius: 50%;
+    left: -126%;
+    top: 0;
+    transition-duration: 350ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-property: transform, border-radius;
+    mix-blend-mode: difference;
+  }
+
   &:hover {
     background-color: color-mix(in oklab, var(--btn-bg), #000 7%);
+
+    &::before {
+      transform: translate(90%, -45%);
+      border-radius: 0;
+    }
 
     @media (prefers-color-scheme: dark) {
       background-color: color-mix(in oklab, var(--btn-bg), #fff 7%);
@@ -81,7 +101,7 @@
   }
 
   &:active {
-    @apply translate-y-0.5;
+    @apply translate-0.5;
     background-color: color-mix(in oklab, var(--btn-bg), #000 5%);
 
     @media (prefers-color-scheme: dark) {
