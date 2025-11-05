@@ -1,5 +1,11 @@
 # @leafy-ui/core
 
+## 0.6.0
+
+### Minor Changes
+
+- New component: Type-writer | refactor product-image-slider | .btn enchancements
+
 ## 0.5.1
 
 ### Patch Changes

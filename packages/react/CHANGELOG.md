@@ -1,5 +1,12 @@
 # @leafy-ui/react
 
+## 0.1.5
+
+### Patch Changes
+
+- Updated dependencies
+  - @leafy-ui/core@0.6.0
+
 ## 0.1.4
 
 ### Patch Changes
