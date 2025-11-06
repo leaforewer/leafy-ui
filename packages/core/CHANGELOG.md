@@ -1,5 +1,11 @@
 # @leafy-ui/core
 
+## 0.6.3
+
+### Patch Changes
+
+- patch: leaf-carousel behaviour
+
 ## 0.6.2
 
 ### Patch Changes
