@@ -2,6 +2,7 @@ import { html, LitElement, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
 type Input = string | string[];
+let TW_SEQ = 0;
 
 @customElement("type-writer")
 export class TypeWriterEl extends LitElement {
@@ -20,6 +21,9 @@ export class TypeWriterEl extends LitElement {
   @property({ type: String }) caretChar = "";
   @property({ type: Number }) delay = 0;
 
+  @property({ type: Boolean }) reserve = true;
+  @property({ type: Boolean }) fade = true;
+
   @state() private _display = "";
   @state() private _playing = false;
 
@@ -32,6 +36,12 @@ export class TypeWriterEl extends LitElement {
   private _dir: 1 | -1 = 1;
   private _inited = false;
 
+  private _flip = 0;
+
+  private _uid = `tw${++TW_SEQ}`;
+  private _reserveStyleId = `tw-r-${this._uid}`;
+  private _onResize = () => this.reserveHeight();
+
   createRenderRoot() {
     return this;
   }
@@ -40,6 +50,10 @@ export class TypeWriterEl extends LitElement {
     super.connectedCallback();
     this.ensureStyle();
     this.prepareText();
+    if (this.reserve) {
+      this.reserveHeight();
+      window.addEventListener("resize", this._onResize, { passive: true });
+    }
     if (this.inview) this.watchInView();
     else this.schedulePlay();
   }
@@ -49,12 +63,15 @@ export class TypeWriterEl extends LitElement {
     if (this._timer) clearTimeout(this._timer);
     if (this._startTimer) clearTimeout(this._startTimer);
     this._io?.disconnect();
+    window.removeEventListener("resize", this._onResize);
+    document.getElementById(this._reserveStyleId)?.remove();
   }
 
   play() {
-    if (this._playing || !this._full) return;
-    this._playing = true;
-    this.tick();
+    if (!this._playing && this._full) {
+      this._playing = true;
+      this.tick();
+    }
   }
   pause() {
     this._playing = false;
@@ -90,6 +107,43 @@ export class TypeWriterEl extends LitElement {
     }
     if (Array.isArray(txt)) txt = txt.join("\n");
     this._full = (txt ?? "").toString();
+  }
+
+  private reserveHeight() {
+    if (!this.reserve || !this._full) return;
+
+    const meas = document.createElement("div");
+    const cs = getComputedStyle(this);
+    const r = this.getBoundingClientRect();
+
+    meas.textContent = this._full;
+    meas.style.position = "fixed";
+    meas.style.left = "-9999px";
+    meas.style.top = "0";
+    meas.style.visibility = "hidden";
+    meas.style.pointerEvents = "none";
+    meas.style.whiteSpace = "pre-wrap";
+    meas.style.wordBreak = "break-word";
+    if (r.width) meas.style.width = `${r.width}px`;
+    meas.style.font = cs.font;
+    meas.style.lineHeight = cs.lineHeight as string;
+    meas.style.letterSpacing = cs.letterSpacing as string;
+    meas.style.fontWeight = cs.fontWeight as string;
+
+    document.body.appendChild(meas);
+    const h = Math.ceil(meas.getBoundingClientRect().height);
+    document.body.removeChild(meas);
+
+    this.setAttribute("data-tw", this._uid);
+    let s = document.getElementById(
+      this._reserveStyleId,
+    ) as HTMLStyleElement | null;
+    if (!s) {
+      s = document.createElement("style");
+      s.id = this._reserveStyleId;
+      document.head.appendChild(s);
+    }
+    s.textContent = `type-writer[data-tw="${this._uid}"]{min-height:${h}px}`;
   }
 
   private watchInView() {
@@ -139,8 +193,10 @@ export class TypeWriterEl extends LitElement {
 
   private tick() {
     if (!this._playing) return;
-
     const len = this._full.length;
+
+    this._flip ^= 1;
+
     if (this._dir === 1) {
       const ch = this._full.charAt(this._pos);
       this._pos = Math.min(len, this._pos + 1);
@@ -151,10 +207,9 @@ export class TypeWriterEl extends LitElement {
           this._dir = -1;
           this._timer = window.setTimeout(() => this.tick(), 600);
           return;
-        } else {
-          this._playing = false;
-          return;
         }
+        this._playing = false;
+        return;
       }
       this._timer = window.setTimeout(
         () => this.tick(),
@@ -186,21 +241,43 @@ export class TypeWriterEl extends LitElement {
 .tw{white-space:pre-wrap;word-break:break-word}
 .tw-caret{display:inline-block;vertical-align:baseline;border-right:.12em solid currentColor;margin-left:.06em;height:1em;transform:translateY(.1em);animation:tw-blink 1s step-end infinite}
 .tw-caret-char{display:inline-block;margin-left:.06em;animation:tw-blink 1s step-end infinite}
+
+.tw-last{opacity:0}
+.tw-last.flip0{animation:tw-fade-a 220ms ease-out forwards}
+.tw-last.flip1{animation:tw-fade-b 220ms ease-out forwards}
+
 @keyframes tw-blink{50%{opacity:0}}
-@media (prefers-reduced-motion: reduce){.tw-caret,.tw-caret-char{animation:none}}
+@keyframes tw-fade-a{from{opacity:0;transform:translateY(.02em)}to{opacity:1;transform:none}}
+@keyframes tw-fade-b{from{opacity:0;transform:translateY(.02em)}to{opacity:1;transform:none}}
+
+@media (prefers-reduced-motion: reduce){
+  .tw-caret,.tw-caret-char{animation:none}
+  .tw-last{animation:none;opacity:1}
+}
 `.trim();
     document.head.appendChild(style);
   }
 
   private renderDisplay() {
     if (!this._display) return nothing;
-    const lines = this._display.split("\n");
-    const parts: unknown[] = [];
-    lines.forEach((ln, i) => {
-      parts.push(ln);
-      if (i < lines.length - 1) parts.push(html`<br />`);
+    const s = this._display;
+    const last = s.slice(-1);
+    const rest = s.slice(0, -1);
+
+    const restNodes: unknown[] = [];
+    rest.split("\n").forEach((ln, i, arr) => {
+      restNodes.push(ln);
+      if (i < arr.length - 1) restNodes.push(html`<br />`);
     });
-    return parts;
+
+    const lastNode =
+      last === ""
+        ? nothing
+        : this.fade
+          ? html`<span class="tw-last ${this._flip ? "flip1" : "flip0"}">${last}</span>`
+          : last;
+
+    return html`${restNodes}${lastNode}`;
   }
 
   render() {
