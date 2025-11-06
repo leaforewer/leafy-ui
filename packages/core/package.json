@@ -1,6 +1,6 @@
 {
   "name": "@leafy-ui/core",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Leafy UI core styles and web components",
   "license": "MIT",
   "type": "module",

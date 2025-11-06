@@ -1,5 +1,11 @@
 # @leafy-ui/core
 
+## 0.6.1
+
+### Patch Changes
+
+- fix: type-writer reveal
+
 ## 0.6.0
 
 ### Minor Changes
