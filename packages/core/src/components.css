@@ -1,10 +1,10 @@
 @layer components {
   .product-image-carousel {
-    @apply overflow-hidden w-full h-full cursor-grab active:cursor-grabbing;
+    @apply relative w-full h-full cursor-grab active:cursor-grabbing;
     touch-action: none;
 
     & .carousel-wrapper {
-      @apply absolute inset-0 overflow-hidden rounded;
+      @apply w-full h-full relative overflow-hidden rounded;
     }
 
     & .carousel {
@@ -89,7 +89,6 @@
     background: color-mix(in oklab, black 70%, transparent);
     display: grid;
     place-items: center;
-    padding: 3rem;
   }
 
   .pis-overlay-inner {

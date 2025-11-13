@@ -273,11 +273,9 @@ export class ProductImageSlider extends LitElement {
       >
         <div class="carousel-wrapper">
           ${this.renderTrack("carousel", "contain")}
-        </div>
-
-        ${
-          this.tracks && total > 1
-            ? html`
+                  ${
+                    this.tracks && total > 1
+                      ? html`
           <div class="carousel-tracks">
             ${this.images.map(
               (_img, i) => html`
@@ -292,8 +290,11 @@ export class ProductImageSlider extends LitElement {
             )}
           </div>
         `
-            : null
-        }
+                      : null
+                  }
+        </div>
+
+
 
         ${
           this.zoomBtn
@@ -302,11 +303,10 @@ export class ProductImageSlider extends LitElement {
         `
             : null
         }
-      </div>
 
-      ${
-        this.strip && total > 1
-          ? html`
+              ${
+                this.strip && total > 1
+                  ? html`
         <div class="carousel-strip">
           ${this.images.map(
             (t, i) => html`
@@ -323,12 +323,11 @@ export class ProductImageSlider extends LitElement {
           )}
         </div>
       `
-          : null
-      }
-
-      ${
-        this.zoomEnabled && this.showOverlay
-          ? html`
+                  : null
+              }
+            ${
+              this.zoomEnabled && this.showOverlay
+                ? html`
         <div class="pis-overlay" @click=${this.closeOverlay}>
           <div
             class="pis-overlay-inner pis-overlay-surface"
@@ -386,8 +385,9 @@ export class ProductImageSlider extends LitElement {
           </div>
         </div>
       `
-          : null
-      }
+                : null
+            }
+      </div>
     `;
   }
 }
