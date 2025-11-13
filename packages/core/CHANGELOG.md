@@ -1,5 +1,11 @@
 # @leafy-ui/core
 
+## 0.6.4
+
+### Patch Changes
+
+- minor fix on core components
+
 ## 0.6.3
 
 ### Patch Changes

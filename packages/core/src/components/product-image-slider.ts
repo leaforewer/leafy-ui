@@ -272,7 +272,7 @@ export class ProductImageSlider extends LitElement {
         @pointerup=${(e: PointerEvent) => this.onEnd(e, "base")}
       >
         <div class="carousel-wrapper">
-          ${this.renderTrack("carousel", "cover")}
+          ${this.renderTrack("carousel", "contain")}
         </div>
 
         ${

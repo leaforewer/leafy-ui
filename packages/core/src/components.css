@@ -1,6 +1,6 @@
 @layer components {
   .product-image-carousel {
-    @apply relative overflow-hidden w-full h-52 cursor-grab active:cursor-grabbing;
+    @apply overflow-hidden w-full h-full cursor-grab active:cursor-grabbing;
     touch-action: none;
 
     & .carousel-wrapper {
