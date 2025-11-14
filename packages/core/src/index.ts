@@ -4,3 +4,6 @@ import "./index.css";
 import "./components/leaf-carousel";
 import "./components/product-image-slider";
 import "./components/type-writer";
+
+// utilities
+import "./utils/on-view";

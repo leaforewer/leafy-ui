@@ -24,6 +24,12 @@ export default defineConfig({
         file,
       ]),
     ),
+    ...Object.fromEntries(
+      globSync("src/utils/**/*.ts").map((file) => [
+        path.relative("src", file).replace(/\.ts$/, ""),
+        file,
+      ]),
+    ),
   },
   outDir: "dist",
   clean: true,

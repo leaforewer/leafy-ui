@@ -2,6 +2,14 @@
   @apply flex items-center justify-center;
 }
 
+@utility scrollbar-hide {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 @utility leaf-stagger {
   --stagger-delay: 100ms;
   --anim: leaf-fade-up;

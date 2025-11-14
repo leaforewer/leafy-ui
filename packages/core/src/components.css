@@ -1,10 +1,15 @@
 @layer components {
   .product-image-carousel {
-    @apply relative w-full h-full cursor-grab active:cursor-grabbing;
+    @apply relative w-full h-full;
     touch-action: none;
 
+    & .carousel-container {
+      @apply relative flex flex-col gap-1 h-full;
+    }
+
     & .carousel-wrapper {
-      @apply w-full h-full relative overflow-hidden rounded;
+      @apply flex-1 relative overflow-hidden rounded-xl cursor-grab active:cursor-grabbing;
+      min-height: 0;
     }
 
     & .carousel {
@@ -25,7 +30,7 @@
     }
 
     & .carousel-tracks {
-      @apply absolute bottom-1 left-1/2 -translate-x-1/2 flex space-x-1 z-10;
+      @apply absolute bottom-2 left-1/2 -translate-x-1/2 flex space-x-1 z-10;
 
       & .carousel-track {
         --bg-color: var(--color-bg);
@@ -55,21 +60,64 @@
       }
     }
 
-    & .carousel-zoom {
+    & .carousel-zoom-btn {
       @apply absolute top-2 right-2 z-10 w-8 h-8 rounded-md bg-black/60 text-white flex items-center justify-center transition-colors;
+      display: none;
+
+      & .close-icon {
+        display: none;
+      }
+
+      &:hover {
+        @apply bg-black/80;
+      }
     }
 
-    & .carousel-zoom:hover {
-      @apply bg-black/80;
+    &.has-zoom-btn .carousel-zoom-btn {
+      display: flex;
+    }
+
+    &.has-zoom-btn .carousel-zoom-btn.click-only {
+      display: none;
+    }
+
+    &.has-zoom-btn.zoomed .carousel-zoom-btn.click-only {
+      display: flex;
+    }
+
+    &.zoomed {
+      @apply fixed inset-0 z-9999 bg-black/70 m-auto grid place-items-center;
+
+      & .carousel-container {
+        @apply h-auto;
+        width: min(95vw, 1200px);
+      }
+
+      & .carousel-thumb.active {
+        @apply m-0.5;
+      }
+
+      & .carousel .carousel-item img,
+      & .carousel > * img {
+        @apply object-contain;
+      }
+    }
+
+    &.btn-close .carousel-zoom-btn { & .zoom-icon { display: none;
+      }
+
+      & .close-icon {
+        display: inline;
+      }
     }
   }
 
   .carousel-strip {
-    @apply mt-2 w-full flex gap-1 justify-center;
+    @apply w-full flex justify-center overflow-x-auto scrollbar-hide h-12 lg:h-14 px-2;
   }
 
   .carousel-thumb {
-    @apply w-12 h-12 rounded-md overflow-hidden border border-black/20 p-0 bg-transparent;
+    @apply aspect-square shrink-0 rounded-lg border-2 border-transparent bg-transparent overflow-hidden transition;
   }
 
   .carousel-thumb img {
@@ -78,115 +126,8 @@
 
   .carousel-thumb.active {
     --border-color: var(--color-success);
-    @apply outline outline-2 outline-offset-2;
+    @apply border-black transition;
     outline-color: var(--border-color);
-  }
-
-  .pis-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    background: color-mix(in oklab, black 70%, transparent);
-    display: grid;
-    place-items: center;
-  }
-
-  .pis-overlay-inner {
-    position: relative;
-    width: min(95vw, 1200px);
-    height: min(90vh, 800px);
-    background: #111;
-    border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-    display: grid;
-    grid-template-rows: 1fr auto;
-    gap: 0.5rem;
-    padding: 1rem;
-    touch-action: none;
-  }
-
-  .pis-close {
-    position: absolute;
-    z-index: 10;
-    top: 0.5rem;
-    right: 0.5rem;
-    width: 2.25rem;
-    height: 2.25rem;
-    border-radius: 0.5rem;
-    background: rgba(0, 0, 0, 0.6);
-    color: white;
-    display: grid;
-    place-items: center;
-  }
-
-  .pis-track-wrapper {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    border-radius: 0.5rem;
-  }
-
-  .pis-overlay-track {
-    display: flex;
-    height: 100%;
-    will-change: transform;
-    user-select: none;
-  }
-
-  .pis-overlay-track .carousel-item {
-    flex: 0 0 100%;
-    position: relative;
-  }
-
-  .pis-overlay-track img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    -webkit-user-drag: none;
-    user-select: none;
-    pointer-events: none;
-  }
-
-  .pis-overlay-tracks {
-    position: absolute;
-    left: 50%;
-    bottom: 0.5rem;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 0.25rem;
-    z-index: 10;
-  }
-
-  .pis-overlay-strip {
-    display: flex;
-    gap: 0.25rem;
-    justify-content: center;
-    width: 100%;
-  }
-
-  .pis-overlay-strip .carousel-thumb {
-    width: 3rem;
-    height: 3rem;
-    border-radius: 0.5rem;
-    overflow: hidden;
-    border: 1px solid color-mix(in oklab, black 20%, transparent);
-    background: transparent;
-  }
-
-  .pis-overlay-strip .carousel-thumb img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .pis-overlay-strip .carousel-thumb.active {
-    outline: 2px solid var(--color-success);
-    outline-offset: 2px;
-  }
-
-  .pis-no-scroll {
-    overflow: hidden;
   }
 
   .hover-gallery {

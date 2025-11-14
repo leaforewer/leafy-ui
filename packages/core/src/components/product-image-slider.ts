@@ -26,14 +26,11 @@ const jsonConv = {
   },
 };
 
-type Ctx = "base" | "overlay";
-
 @customElement("product-image-slider")
 export class ProductImageSlider extends LitElement {
   static styles = css`:host{display:block}`;
 
-  @property({ attribute: "data-images", converter: jsonConv }) images: Img[] =
-    [];
+  @property({ attribute: "images", converter: jsonConv }) images: Img[] = [];
   @property({ type: Boolean, reflect: true }) tracks = true;
   @property({ type: Boolean, reflect: true }) strip = false;
   @property({ type: String, reflect: true }) trackstyle: TrackStyle = "dot";
@@ -41,7 +38,6 @@ export class ProductImageSlider extends LitElement {
   @property({ type: Boolean, reflect: true }) zoomBtn = false;
 
   @state() private index = 0;
-  @state() private showOverlay = false;
 
   private startX: number | null = null;
   private dragX = 0;
@@ -89,51 +85,38 @@ export class ProductImageSlider extends LitElement {
 
   private uiTarget(e: Event): boolean {
     const t = e.target as HTMLElement | null;
-    return !!t?.closest(
-      ".carousel-zoom, .carousel-track, .carousel-thumb, .pis-close",
-    );
+    return !!t?.closest(".carousel-zoom-btn, .carousel-track, .carousel-thumb");
   }
 
-  private surface(ctx: Ctx) {
-    return (
-      ctx === "base"
-        ? this.querySelector(".product-image-carousel")
-        : this.querySelector(".pis-overlay-surface")
+  private onContainerClick = (e: Event) => {
+    const carousel = this.querySelector(
+      ".product-image-carousel",
     ) as HTMLElement | null;
-  }
-  private trackEl(ctx: Ctx) {
-    return (
-      ctx === "base"
-        ? this.querySelector(".carousel")
-        : this.querySelector(".pis-overlay-track")
-    ) as HTMLElement | null;
-  }
-  private width(ctx: Ctx) {
-    return this.surface(ctx)?.offsetWidth || 1;
-  }
-  private setTransform(ctx: Ctx, pct: number) {
-    const t = this.trackEl(ctx);
-    if (t) t.style.transform = `translateX(${pct}%)`;
-  }
-  private setTransition(ctx: Ctx, on: boolean) {
-    const t = this.trackEl(ctx);
-    if (t) t.style.transition = on ? "transform 300ms ease-out" : "none";
-  }
+    const isZoomed = carousel?.classList.contains("zoomed") || false;
+
+    if (isZoomed && !this.uiTarget(e)) {
+      const target = e.target as HTMLElement | null;
+      const clickedInsideContainer = target?.closest(".carousel-container");
+      if (!clickedInsideContainer) {
+        this.closeZoom();
+      }
+    }
+  };
   private wrapIndex(i: number) {
     const n = this.total;
     if (n === 0) return 0;
     return ((i % n) + n) % n;
   }
+
   private goTo(i: number) {
     if (this.total <= 0) return;
     const clamped = this.wrapIndex(i);
     if (clamped !== this.index) {
       this.index = clamped;
-      this.setTransition("base", true);
-      this.setTransform("base", -this.index * 100);
-      if (this.showOverlay) {
-        this.setTransition("overlay", true);
-        this.setTransform("overlay", -this.index * 100);
+      const track = this.querySelector(".carousel") as HTMLElement | null;
+      if (track) {
+        track.style.transition = "transform 300ms ease-out";
+        track.style.transform = `translateX(${-this.index * 100}%)`;
       }
       this.dispatchEvent(
         new CustomEvent("index-change", { detail: { index: clamped } }),
@@ -141,31 +124,44 @@ export class ProductImageSlider extends LitElement {
     }
   }
 
-  private onStart = (e: PointerEvent, ctx: Ctx = "base") => {
+  private onStart = (e: PointerEvent) => {
     if (this.uiTarget(e) || this.total <= 1) return;
     e.preventDefault();
-    this.surface(ctx)?.setPointerCapture?.(e.pointerId);
+    const carousel = this.querySelector(".carousel") as HTMLElement | null;
+    carousel?.setPointerCapture?.(e.pointerId);
     this.isDragging = true;
     this.tapCandidate = true;
     this.startX = e.clientX;
     this.dragX = 0;
     this.startTransformPct = -this.index * 100;
-    this.setTransition(ctx, false);
+    const track = this.querySelector(".carousel") as HTMLElement | null;
+    if (track) {
+      track.style.transition = "none";
+    }
   };
-  private onMove = (e: PointerEvent, ctx: Ctx = "base") => {
+
+  private onMove = (e: PointerEvent) => {
     if (!this.isDragging || this.startX === null) return;
     e.preventDefault();
     this.dragX = e.clientX - this.startX;
     if (Math.abs(this.dragX) > this.tapMovePx) this.tapCandidate = false;
-    const movePct = (this.dragX / this.width(ctx)) * 100;
-    this.setTransform(ctx, this.startTransformPct + movePct);
+    const carousel = this.querySelector(".carousel") as HTMLElement | null;
+    const width = carousel?.offsetWidth || 1;
+    const movePct = (this.dragX / width) * 100;
+    const track = this.querySelector(".carousel") as HTMLElement | null;
+    if (track) {
+      track.style.transform = `translateX(${this.startTransformPct + movePct}%)`;
+    }
   };
-  private onEnd = (e: PointerEvent, ctx: Ctx = "base") => {
+
+  private onEnd = (e: PointerEvent) => {
     if (!this.isDragging || this.startX === null) return;
-    this.surface(ctx)?.releasePointerCapture?.(e.pointerId);
+    const carousel = this.querySelector(".carousel") as HTMLElement | null;
+    carousel?.releasePointerCapture?.(e.pointerId);
 
     const dx = this.dragX;
-    const threshold = this.width(ctx) * 0.2;
+    const width = carousel?.offsetWidth || 1;
+    const threshold = width * 0.2;
 
     let next = this.index;
     if (Math.abs(dx) > threshold) {
@@ -176,17 +172,19 @@ export class ProductImageSlider extends LitElement {
     }
 
     this.index = next;
-    this.setTransition(ctx, true);
-    this.setTransform(ctx, -this.index * 100);
+    const track = this.querySelector(".carousel") as HTMLElement | null;
+    if (track) {
+      track.style.transition = "transform 300ms ease-out";
+      track.style.transform = `translateX(${-this.index * 100}%)`;
+    }
 
     if (
-      ctx === "base" &&
       this.zoomEnabled &&
       this.zoom &&
       this.tapCandidate &&
       !this.uiTarget(e)
     ) {
-      this.openOverlay();
+      this.toggleZoom();
     }
 
     this.isDragging = false;
@@ -207,26 +205,40 @@ export class ProductImageSlider extends LitElement {
     if (e.key === "ArrowRight") this.goTo(this.wrapIndex(this.index + 1));
     if (e.key === "ArrowLeft") this.goTo(this.wrapIndex(this.index - 1));
     if (this.zoomEnabled && (e.key === "Enter" || e.key === " "))
-      this.openOverlay();
-    if (this.showOverlay && e.key === "Escape") this.closeOverlay();
+      this.toggleZoom();
+    if (e.key === "Escape") this.closeZoom();
   };
 
-  private openOverlay() {
+  private toggleZoom() {
     if (!this.zoomEnabled) return;
-    this.showOverlay = true;
-    requestAnimationFrame(() => {
-      this.setTransition("overlay", false);
-      this.setTransform("overlay", -this.index * 100);
-    });
-    document.documentElement.classList.add("pis-no-scroll");
+    const carousel = this.querySelector(
+      ".product-image-carousel",
+    ) as HTMLElement | null;
+    if (carousel) {
+      const isCurrentlyZoomed = carousel.classList.contains("zoomed");
+      if (isCurrentlyZoomed) {
+        carousel.classList.remove("zoomed");
+        carousel.classList.remove("btn-close");
+      } else {
+        carousel.classList.add("zoomed");
+        carousel.classList.add("btn-close");
+      }
+    }
   }
-  private closeOverlay = () => {
-    this.showOverlay = false;
-    document.documentElement.classList.remove("pis-no-scroll");
+
+  private closeZoom = () => {
+    const carousel = this.querySelector(
+      ".product-image-carousel",
+    ) as HTMLElement | null;
+    if (carousel) {
+      carousel.classList.remove("zoomed");
+      carousel.classList.remove("btn-close");
+    }
   };
+
   private onZoomButton = (e: MouseEvent) => {
     e.stopPropagation();
-    this.openOverlay();
+    this.toggleZoom();
   };
 
   private renderTrack(className: string, fit: "cover" | "contain") {
@@ -246,7 +258,6 @@ export class ProductImageSlider extends LitElement {
                 loading=${eager ? "eager" : "lazy"}
                 decoding="async"
                 fetchpriority=${eager ? "high" : "auto"}
-                style=${`object-fit:${fit}`}
               />
             </div>`;
         })}
@@ -259,7 +270,7 @@ export class ProductImageSlider extends LitElement {
 
     return html`
       <div
-        class="product-image-carousel"
+        class="product-image-carousel ${this.zoomEnabled ? "has-zoom-btn" : ""}"
         data-carousel="true"
         role="slider"
         tabindex="0"
@@ -267,104 +278,55 @@ export class ProductImageSlider extends LitElement {
         aria-valuemax=${Math.max(0, total - 1)}
         aria-valuenow=${this.index}
         aria-orientation="horizontal"
-        @pointerdown=${(e: PointerEvent) => this.onStart(e, "base")}
-        @pointermove=${(e: PointerEvent) => this.onMove(e, "base")}
-        @pointerup=${(e: PointerEvent) => this.onEnd(e, "base")}
+        @click=${this.onContainerClick}
       >
-        <div class="carousel-wrapper">
+        <div class="carousel-container"> 
+        <div class="carousel-wrapper"
+             @pointerdown=${this.onStart}
+             @pointermove=${this.onMove}
+             @pointerup=${this.onEnd}
+        >
           ${this.renderTrack("carousel", "contain")}
-                  ${
-                    this.tracks && total > 1
-                      ? html`
-          <div class="carousel-tracks">
-            ${this.images.map(
-              (_img, i) => html`
-              <button
-                type="button"
-                class="carousel-track ${this.trackstyle} ${i === this.index ? "active" : ""}"
-                data-slide-to=${i}
-                aria-label=${`Go to image ${i + 1}`}
-                @click=${() => this.goTo(i)}
-              ></button>
-            `,
-            )}
-          </div>
-        `
-                      : null
-                  }
+        ${
+          this.tracks && total > 1
+            ? html`
+            <div class="carousel-tracks">
+              ${this.images.map(
+                (_img, i) => html`
+                <button
+                  type="button"
+                  class="carousel-track ${this.trackstyle} ${i === this.index ? "active" : ""}"
+                  data-slide-to=${i}
+                  aria-label=${`Go to image ${i + 1}`}
+                  @click=${() => this.goTo(i)}
+                ></button>
+              `,
+              )}
+            </div>
+          `
+            : null
+        }
         </div>
 
-
-
         ${
-          this.zoomBtn
+          this.zoomEnabled
             ? html`
-          <button class="carousel-zoom" type="button" aria-label="Zoom" @click=${this.onZoomButton}>⤢</button>
+          <button 
+            class="carousel-zoom-btn ${this.zoomBtn ? "" : "click-only"}" 
+            type="button" 
+            @click=${this.onZoomButton}
+          >
+            <span class="zoom-icon">⤢</span>
+            <span class="close-icon">✕</span>
+          </button>
         `
             : null
         }
 
-              ${
-                this.strip && total > 1
-                  ? html`
-        <div class="carousel-strip">
-          ${this.images.map(
-            (t, i) => html`
-            <button
-              type="button"
-              class="carousel-thumb ${i === this.index ? "active" : ""}"
-              data-index=${i}
-              aria-label=${`Thumbnail ${i + 1}`}
-              @click=${() => this.goTo(i)}
-            >
-              <img src=${t.url} alt=${t.alt ?? `Thumb ${i + 1}`} draggable="false" loading="lazy" decoding="async" />
-            </button>
-          `,
-          )}
-        </div>
-      `
-                  : null
-              }
-            ${
-              this.zoomEnabled && this.showOverlay
-                ? html`
-        <div class="pis-overlay" @click=${this.closeOverlay}>
-          <div
-            class="pis-overlay-inner pis-overlay-surface"
-            @click=${(e: Event) => e.stopPropagation()}
-            @pointerdown=${(e: PointerEvent) => this.onStart(e, "overlay")}
-            @pointermove=${(e: PointerEvent) => this.onMove(e, "overlay")}
-            @pointerup=${(e: PointerEvent) => this.onEnd(e, "overlay")}
-          >
-            <button class="pis-close" type="button" aria-label="Close" @click=${this.closeOverlay}>✕</button>
-
-            <div class="pis-track-wrapper">
-              ${this.renderTrack("carousel pis-overlay-track", "contain")}
-              ${
-                this.tracks && total > 1
-                  ? html`
-                <div class="pis-overlay-tracks">
-                  ${this.images.map(
-                    (_img, i) => html`
-                    <button
-                      type="button"
-                      class="carousel-track ${this.trackstyle} ${i === this.index ? "active" : ""}"
-                      data-slide-to=${i}
-                      aria-label=${`Go to image ${i + 1}`}
-                      @click=${() => this.goTo(i)}
-                    ></button>
-                  `,
-                  )}
-                </div>
-              `
-                  : null
-              }
-            </div>
-
-            ${
-              this.strip && total > 1
-                ? html`
-              <div class="pis-overlay-strip">
+        ${
+          this.strip && total > 1
+            ? html`
+              <div class="carousel-strip">
                 ${this.images.map(
                   (t, i) => html`
                   <button
@@ -380,14 +342,10 @@ export class ProductImageSlider extends LitElement {
                 )}
               </div>
             `
-                : null
-            }
-          </div>
-        </div>
-      `
-                : null
-            }
+            : null
+        }
       </div>
+    </div>
     `;
   }
 }

@@ -1,5 +1,11 @@
 # @leafy-ui/core
 
+## 0.7.0
+
+### Minor Changes
+
+- New util: On view animation helper | Refactored product-image-slider
+
 ## 0.6.5
 
 ### Patch Changes

@@ -1,0 +1,247 @@
+.on-view {
+  opacity: 0;
+  transition: none;
+}
+
+.on-view.on-view-animated {
+  opacity: 1;
+}
+
+.on-view.fade-in {
+  opacity: 0;
+}
+
+.on-view.slide-up {
+  opacity: 0;
+  transform: translateY(var(--on-view-distance, 50px));
+}
+
+.on-view.slide-down {
+  opacity: 0;
+  transform: translateY(var(--on-view-distance, -50px));
+}
+
+.on-view.slide-left {
+  opacity: 0;
+  transform: translateX(var(--on-view-distance, 50px));
+}
+
+.on-view.slide-right {
+  opacity: 0;
+  transform: translateX(var(--on-view-distance, -50px));
+}
+
+.on-view.scale-in {
+  opacity: 0;
+  transform: scale(var(--on-view-scale, 0.8));
+}
+
+.on-view.scale-out {
+  opacity: 0;
+  transform: scale(var(--on-view-scale, 1.2));
+}
+
+.on-view.bounce-in {
+  opacity: 0;
+  transform: scale(0.3);
+}
+
+.on-view.flip-in {
+  opacity: 0;
+  transform: rotateY(var(--on-view-rotation, 90deg));
+}
+
+.on-view.rotate-in {
+  opacity: 0;
+  transform: rotate(var(--on-view-rotation, 180deg)) scale(0.8);
+}
+
+/* Animation keyframes */
+@keyframes onViewFadeIn {
+  from { 
+    opacity: 0; 
+  }
+  to { 
+    opacity: 1; 
+  }
+}
+
+@keyframes onViewSlideUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(var(--on-view-distance, 50px)); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@keyframes onViewSlideDown {
+  from { 
+    opacity: 0; 
+    transform: translateY(var(--on-view-distance, -50px)); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@keyframes onViewSlideLeft {
+  from { 
+    opacity: 0; 
+    transform: translateX(var(--on-view-distance, 50px)); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateX(0); 
+  }
+}
+
+@keyframes onViewSlideRight {
+  from { 
+    opacity: 0; 
+    transform: translateX(var(--on-view-distance, -50px)); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateX(0); 
+  }
+}
+
+@keyframes onViewScaleIn {
+  from { 
+    opacity: 0; 
+    transform: scale(var(--on-view-scale, 0.8)); 
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+}
+
+@keyframes onViewScaleOut {
+  from { 
+    opacity: 0; 
+    transform: scale(var(--on-view-scale, 1.2)); 
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+}
+
+@keyframes onViewBounceIn {
+  0% { 
+    opacity: 0; 
+    transform: scale(0.3); 
+  }
+  50% { 
+    transform: scale(1.05); 
+  }
+  70% { 
+    transform: scale(0.9); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+}
+
+@keyframes onViewFlipIn {
+  from { 
+    opacity: 0; 
+    transform: rotateY(var(--on-view-rotation, 90deg)); 
+  }
+  to { 
+    opacity: 1; 
+    transform: rotateY(0); 
+  }
+}
+
+@keyframes onViewRotateIn {
+  from { 
+    opacity: 0; 
+    transform: rotate(var(--on-view-rotation, 180deg)) scale(0.8); 
+  }
+  to { 
+    opacity: 1; 
+    transform: rotate(0) scale(1); 
+  }
+}
+
+/* Animation classes */
+.on-view.fade-in.on-view-animated {
+  animation: onViewFadeIn var(--on-view-duration, 0.6s) var(--on-view-easing, ease-out) var(--on-view-delay, 0s) forwards;
+}
+
+.on-view.slide-up.on-view-animated {
+  animation: onViewSlideUp var(--on-view-duration, 0.6s) var(--on-view-easing, ease-out) var(--on-view-delay, 0s) forwards;
+}
+
+.on-view.slide-down.on-view-animated {
+  animation: onViewSlideDown var(--on-view-duration, 0.6s) var(--on-view-easing, ease-out) var(--on-view-delay, 0s) forwards;
+}
+
+.on-view.slide-left.on-view-animated {
+  animation: onViewSlideLeft var(--on-view-duration, 0.6s) var(--on-view-easing, ease-out) var(--on-view-delay, 0s) forwards;
+}
+
+.on-view.slide-right.on-view-animated {
+  animation: onViewSlideRight var(--on-view-duration, 0.6s) var(--on-view-easing, ease-out) var(--on-view-delay, 0s) forwards;
+}
+
+.on-view.scale-in.on-view-animated {
+  animation: onViewScaleIn var(--on-view-duration, 0.6s) var(--on-view-easing, ease-out) var(--on-view-delay, 0s) forwards;
+}
+
+.on-view.scale-out.on-view-animated {
+  animation: onViewScaleOut var(--on-view-duration, 0.6s) var(--on-view-easing, ease-out) var(--on-view-delay, 0s) forwards;
+}
+
+.on-view.bounce-in.on-view-animated {
+  animation: onViewBounceIn var(--on-view-duration, 0.8s) var(--on-view-easing, ease-out) var(--on-view-delay, 0s) forwards;
+}
+
+.on-view.flip-in.on-view-animated {
+  animation: onViewFlipIn var(--on-view-duration, 0.6s) var(--on-view-easing, ease-out) var(--on-view-delay, 0s) forwards;
+}
+
+.on-view.rotate-in.on-view-animated {
+  animation: onViewRotateIn var(--on-view-duration, 0.8s) var(--on-view-easing, ease-out) var(--on-view-delay, 0s) forwards;
+}
+
+.on-view-delay-100 { --on-view-delay: 0.1s; }
+.on-view-delay-200 { --on-view-delay: 0.2s; }
+.on-view-delay-300 { --on-view-delay: 0.3s; }
+.on-view-delay-400 { --on-view-delay: 0.4s; }
+.on-view-delay-500 { --on-view-delay: 0.5s; }
+.on-view-delay-700 { --on-view-delay: 0.7s; }
+.on-view-delay-1000 { --on-view-delay: 1s; }
+
+.on-view-duration-300 { --on-view-duration: 0.3s; }
+.on-view-duration-500 { --on-view-duration: 0.5s; }
+.on-view-duration-700 { --on-view-duration: 0.7s; }
+.on-view-duration-1000 { --on-view-duration: 1s; }
+.on-view-duration-1500 { --on-view-duration: 1.5s; }
+
+.on-view-distance-sm { --on-view-distance: 20px; }
+.on-view-distance-md { --on-view-distance: 50px; }
+.on-view-distance-lg { --on-view-distance: 80px; }
+.on-view-distance-xl { --on-view-distance: 120px; }
+
+.on-view-scale-sm { --on-view-scale: 0.9; }
+.on-view-scale-md { --on-view-scale: 0.8; }
+.on-view-scale-lg { --on-view-scale: 0.6; }
+.on-view-scale-xl { --on-view-scale: 0.4; }
+
+.on-view-ease-linear { --on-view-easing: linear; }
+.on-view-ease-in { --on-view-easing: ease-in; }
+.on-view-ease-out { --on-view-easing: ease-out; }
+.on-view-ease-in-out { --on-view-easing: ease-in-out; }
+
+.on-view-trigger-early { --on-view-threshold: 0.1; --on-view-margin: 50px; }
+.on-view-trigger-normal { --on-view-threshold: 0.3; --on-view-margin: 0px; }
+.on-view-trigger-late { --on-view-threshold: 0.6; --on-view-margin: 0px; }
+.on-view-trigger-full { --on-view-threshold: 1.0; --on-view-margin: 0px; }
