@@ -1,5 +1,23 @@
 # @leafy-ui/core
 
+## 0.8.3
+
+### Patch Changes
+
+- chore: option to add hover bg manually for .btn
+
+## 0.8.2
+
+### Patch Changes
+
+- hotfix product-image-carousel
+
+## 0.8.1
+
+### Patch Changes
+
+- Small fix images on product-image-slider
+
 ## 0.8.0
 
 ### Minor Changes

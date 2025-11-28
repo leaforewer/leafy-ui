@@ -48,7 +48,7 @@
 
     & .carousel .carousel-item img,
     & .carousel>* img {
-      @apply object-cover w-full h-full;
+      @apply object-contain w-full h-full;
       -webkit-user-drag: none;
       user-select: none;
       pointer-events: none;
