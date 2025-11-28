@@ -1,5 +1,11 @@
 # @leafy-ui/core
 
+## 0.8.0
+
+### Minor Changes
+
+- Onview animation watcher + product-image-slider improvements/refactor
+
 ## 0.7.0
 
 ### Minor Changes

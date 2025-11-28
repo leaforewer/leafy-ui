@@ -2,6 +2,7 @@ import { css, html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
 type TrackStyle = "pill" | "line" | "skewed" | "dot";
+type TransitionType = "slide" | "fade";
 type Img = { url: string; alt?: string };
 
 const jsonConv = {
@@ -34,10 +35,13 @@ export class ProductImageSlider extends LitElement {
   @property({ type: Boolean, reflect: true }) tracks = true;
   @property({ type: Boolean, reflect: true }) strip = false;
   @property({ type: String, reflect: true }) trackstyle: TrackStyle = "dot";
+  @property({ type: Number, reflect: true }) trackslimit = 0;
+  @property({ type: String, reflect: true }) transition: TransitionType = "slide";
   @property({ type: Boolean, reflect: true }) zoom = false;
   @property({ type: Boolean, reflect: true }) zoomBtn = false;
 
   @state() private index = 0;
+  @state() private isZoomed = false;
 
   private startX: number | null = null;
   private dragX = 0;
@@ -45,6 +49,7 @@ export class ProductImageSlider extends LitElement {
   private isDragging = false;
   private tapCandidate = false;
   private readonly tapMovePx = 5;
+  private zoomHistoryPushed = false;
 
   createRenderRoot() {
     return this;
@@ -54,10 +59,12 @@ export class ProductImageSlider extends LitElement {
     super.connectedCallback();
     if (!this.images?.length) this.loadFromChildImgs();
     this.addEventListener("keydown", this.handleKeyDown);
+    window.addEventListener("popstate", this.handlePopState);
   }
   disconnectedCallback() {
     super.disconnectedCallback();
     this.removeEventListener("keydown", this.handleKeyDown);
+    window.removeEventListener("popstate", this.handlePopState);
   }
 
   private loadFromChildImgs() {
@@ -108,16 +115,66 @@ export class ProductImageSlider extends LitElement {
     return ((i % n) + n) % n;
   }
 
+  private scrollStripToIndex() {
+    if (!this.strip) return;
+    const stripContainer = this.querySelector('.carousel-strip') as HTMLElement | null;
+    const activeThumb = this.querySelector('.carousel-thumb.active') as HTMLElement | null;
+
+    if (!stripContainer || !activeThumb) return;
+
+    const containerRect = stripContainer.getBoundingClientRect();
+    const thumbRect = activeThumb.getBoundingClientRect();
+
+    const thumbInView = thumbRect.left >= containerRect.left && thumbRect.right <= containerRect.right;
+
+    if (!thumbInView) {
+      const scrollLeft = activeThumb.offsetLeft - stripContainer.offsetWidth / 2 + activeThumb.offsetWidth / 2;
+      stripContainer.scrollTo({
+        left: Math.max(0, scrollLeft),
+        behavior: 'smooth'
+      });
+    }
+  }
+
+  private getVisibleTrackRange(): { start: number; end: number } {
+    const total = this.total;
+    const limit = this.trackslimit;
+
+    if (limit <= 0 || limit >= total) {
+      return { start: 0, end: total - 1 };
+    }
+
+    const currentIndex = this.index;
+    const halfLimit = Math.floor(limit / 2);
+
+    let start = currentIndex - halfLimit;
+    let end = currentIndex + halfLimit;
+
+    if (limit % 2 === 0) {
+      end = currentIndex + halfLimit - 1;
+    }
+
+    if (start < 0) {
+      const offset = Math.abs(start);
+      start = 0;
+      end = Math.min(total - 1, end + offset);
+    }
+
+    if (end >= total) {
+      const offset = end - (total - 1);
+      end = total - 1;
+      start = Math.max(0, start - offset);
+    }
+
+    return { start, end };
+  }
+
   private goTo(i: number) {
     if (this.total <= 0) return;
     const clamped = this.wrapIndex(i);
     if (clamped !== this.index) {
       this.index = clamped;
-      const track = this.querySelector(".carousel") as HTMLElement | null;
-      if (track) {
-        track.style.transition = "transform 300ms ease-out";
-        track.style.transform = `translateX(${-this.index * 100}%)`;
-      }
+      requestAnimationFrame(() => this.scrollStripToIndex());
       this.dispatchEvent(
         new CustomEvent("index-change", { detail: { index: clamped } }),
       );
@@ -135,7 +192,7 @@ export class ProductImageSlider extends LitElement {
     this.dragX = 0;
     this.startTransformPct = -this.index * 100;
     const track = this.querySelector(".carousel") as HTMLElement | null;
-    if (track) {
+    if (track && this.transition !== "fade") {
       track.style.transition = "none";
     }
   };
@@ -145,6 +202,9 @@ export class ProductImageSlider extends LitElement {
     e.preventDefault();
     this.dragX = e.clientX - this.startX;
     if (Math.abs(this.dragX) > this.tapMovePx) this.tapCandidate = false;
+
+    if (this.transition === "fade") return;
+
     const carousel = this.querySelector(".carousel") as HTMLElement | null;
     const width = carousel?.offsetWidth || 1;
     const movePct = (this.dragX / width) * 100;
@@ -174,8 +234,9 @@ export class ProductImageSlider extends LitElement {
     this.index = next;
     const track = this.querySelector(".carousel") as HTMLElement | null;
     if (track) {
-      track.style.transition = "transform 300ms ease-out";
-      track.style.transform = `translateX(${-this.index * 100}%)`;
+      if (this.transition === "slide") {
+        track.style.transform = `translateX(${-this.index * 100}%)`;
+      }
     }
 
     if (
@@ -192,6 +253,8 @@ export class ProductImageSlider extends LitElement {
     this.dragX = 0;
     this.tapCandidate = false;
 
+    requestAnimationFrame(() => this.scrollStripToIndex());
+
     this.dispatchEvent(
       new CustomEvent("index-change", { detail: { index: this.index } }),
     );
@@ -199,6 +262,13 @@ export class ProductImageSlider extends LitElement {
 
   private readonly handleKeyDown: EventListener = (ev: Event) =>
     this.onKey(ev as KeyboardEvent);
+
+  private handlePopState = (e: PopStateEvent) => {
+    if (this.isZoomed && this.zoomHistoryPushed) {
+      e.preventDefault();
+      this.closeZoom();
+    }
+  };
 
   private onKey = (e: KeyboardEvent) => {
     if (this.total <= 1) return;
@@ -217,40 +287,93 @@ export class ProductImageSlider extends LitElement {
     if (carousel) {
       const isCurrentlyZoomed = carousel.classList.contains("zoomed");
       if (isCurrentlyZoomed) {
-        carousel.classList.remove("zoomed");
-        carousel.classList.remove("btn-close");
+        this.closeZoom();
       } else {
-        carousel.classList.add("zoomed");
-        carousel.classList.add("btn-close");
+        this.openZoom();
       }
     }
   }
 
-  private closeZoom = () => {
-    const carousel = this.querySelector(
-      ".product-image-carousel",
-    ) as HTMLElement | null;
-    if (carousel) {
-      carousel.classList.remove("zoomed");
-      carousel.classList.remove("btn-close");
+private openZoom() {
+  const carousel = this.querySelector(
+    ".product-image-carousel",
+  ) as HTMLElement | null;
+  const placeholder = this.querySelector(
+    ".carousel-placeholder",
+  ) as HTMLElement | null;
+
+  if (carousel) {
+    if (placeholder) {
+      const rect = carousel.getBoundingClientRect();
+      placeholder.style.height = `${rect.height}px`;
     }
-  };
+
+    carousel.classList.add("zoomed");
+    carousel.classList.add("btn-close");
+    this.isZoomed = true;
+
+    if (typeof window !== "undefined" && window.history) {
+      window.history.pushState({ zoomOpen: true }, "");
+      this.zoomHistoryPushed = true;
+    }
+  }
+}
+
+private closeZoom = () => {
+  const carousel = this.querySelector(
+    ".product-image-carousel",
+  ) as HTMLElement | null;
+  const placeholder = this.querySelector(
+    ".carousel-placeholder",
+  ) as HTMLElement | null;
+
+  if (carousel) {
+    carousel.classList.remove("zoomed");
+    carousel.classList.remove("btn-close");
+    this.isZoomed = false;
+  }
+
+  if (placeholder) {
+    placeholder.style.height = "";
+  }
+
+  if (
+    this.zoomHistoryPushed &&
+    typeof window !== "undefined" &&
+    window.history
+  ) {
+    this.zoomHistoryPushed = false;
+    if (window.history.state?.zoomOpen) {
+      window.history.back();
+    }
+  }
+};
 
   private onZoomButton = (e: MouseEvent) => {
     e.stopPropagation();
     this.toggleZoom();
   };
 
-  private renderTrack(className: string, fit: "cover" | "contain") {
+  private renderTrack(className: string) {
     const total = this.total;
+    const isFade = this.transition === "fade";
+
     return html`
-      <div class=${className}
-           style="transform: translateX(${-this.index * 100}%); transition: transform 300ms ease-out;"
-           data-images=${total}>
+      <div class="carousel ${className}"
+           style="${isFade
+        ? ''
+        : `transform: translateX(${-this.index * 100}%);`
+      }"
+           data-images=${total}
+           data-transition=${this.transition}>
         ${this.images.map((image, i) => {
-          const eager = i === 0;
-          return html`
-            <div class="carousel-item" data-slide=${i}>
+        const eager = i === 0;
+        const isActive = i === this.index;
+        return html`
+            <div 
+              class="carousel-item ${isActive ? 'active' : ''}" 
+              data-slide=${i}
+            >
               <img
                 src=${image.url}
                 alt=${image.alt ?? `Slide ${i + 1}`}
@@ -260,7 +383,7 @@ export class ProductImageSlider extends LitElement {
                 fetchpriority=${eager ? "high" : "auto"}
               />
             </div>`;
-        })}
+      })}
       </div>
     `;
   }
@@ -269,6 +392,9 @@ export class ProductImageSlider extends LitElement {
     const total = this.total;
 
     return html`
+     <div class="carousel-placeholder" aria-hidden="true"></div>
+
+
       <div
         class="product-image-carousel ${this.zoomEnabled ? "has-zoom-btn" : ""}"
         data-carousel="true"
@@ -281,36 +407,42 @@ export class ProductImageSlider extends LitElement {
         @click=${this.onContainerClick}
       >
         <div class="carousel-container"> 
-        <div class="carousel-wrapper"
+        <div class="carousel-wrapper ${this.transition}"
              @pointerdown=${this.onStart}
              @pointermove=${this.onMove}
              @pointerup=${this.onEnd}
         >
-          ${this.renderTrack("carousel", "contain")}
-        ${
-          this.tracks && total > 1
-            ? html`
+          ${this.renderTrack("carousel")}
+        ${this.tracks && total > 1
+        ? html`
             <div class="carousel-tracks">
-              ${this.images.map(
-                (_img, i) => html`
-                <button
-                  type="button"
-                  class="carousel-track ${this.trackstyle} ${i === this.index ? "active" : ""}"
-                  data-slide-to=${i}
-                  aria-label=${`Go to image ${i + 1}`}
-                  @click=${() => this.goTo(i)}
-                ></button>
-              `,
-              )}
+              ${(() => {
+            const { start, end } = this.getVisibleTrackRange();
+            const visibleTracks = [];
+
+            for (let i = start; i <= end; i++) {
+              visibleTracks.push(html`
+                    <button
+                      type="button"
+                      class="carousel-track ${this.trackstyle} ${i === this.index ? "active" : ""}"
+                      data-slide-to=${i}
+                      aria-label=${`Go to image ${i + 1}`}
+                      @click=${() => this.goTo(i)}
+                    ></button>
+                  `);
+            }
+
+            return visibleTracks;
+          })()
+          }
             </div>
           `
-            : null
-        }
+        : null
+      }
         </div>
 
-        ${
-          this.zoomEnabled
-            ? html`
+        ${this.zoomEnabled
+        ? html`
           <button 
             class="carousel-zoom-btn ${this.zoomBtn ? "" : "click-only"}" 
             type="button" 
@@ -320,15 +452,14 @@ export class ProductImageSlider extends LitElement {
             <span class="close-icon">✕</span>
           </button>
         `
-            : null
-        }
+        : null
+      }
 
-        ${
-          this.strip && total > 1
-            ? html`
+        ${this.strip && total > 1
+        ? html`
               <div class="carousel-strip">
                 ${this.images.map(
-                  (t, i) => html`
+          (t, i) => html`
                   <button
                     type="button"
                     class="carousel-thumb ${i === this.index ? "active" : ""}"
@@ -339,11 +470,11 @@ export class ProductImageSlider extends LitElement {
                     <img src=${t.url} alt=${t.alt ?? `Thumb ${i + 1}`} draggable="false" loading="lazy" decoding="async" />
                   </button>
                 `,
-                )}
+        )}
               </div>
             `
-            : null
-        }
+        : null
+      }
       </div>
     </div>
     `;

@@ -1,5 +1,12 @@
 @layer components {
   .product-image-carousel {
+    --radius: var(--radius-sm, 8px);
+    --active-item-border: var(--color-black, #000);
+    --active-item-bg: transparent;
+    --track-bg: var(--color-bg, #000);
+    --track-active-bg: var(--color-success, #00ff00);
+    --thumb-size: calc(var(--spacing, 0.25rem) * 14);
+
     @apply relative w-full h-full;
     touch-action: none;
 
@@ -8,8 +15,26 @@
     }
 
     & .carousel-wrapper {
-      @apply flex-1 relative overflow-hidden rounded-xl cursor-grab active:cursor-grabbing;
+      @apply rounded-[var(--radius)] flex-1 relative overflow-hidden cursor-grab active:cursor-grabbing;
       min-height: 0;
+
+      & .carousel {
+        @apply transition-all duration-300 ease-out;
+      }
+
+      &.fade {
+        & .carousel {
+          @apply relative;
+        }
+
+        & .carousel-item {
+          @apply absolute w-full h-full top-0 left-0 opacity-0 transition-opacity ease-out;
+          
+          &.active {
+            @apply relative opacity-100;
+          }
+        }
+      }
     }
 
     & .carousel {
@@ -17,12 +42,12 @@
     }
 
     & .carousel .carousel-item,
-    & .carousel > * {
+    & .carousel>* {
       @apply flex-shrink-0 w-full relative;
     }
 
     & .carousel .carousel-item img,
-    & .carousel > * img {
+    & .carousel>* img {
       @apply object-cover w-full h-full;
       -webkit-user-drag: none;
       user-select: none;
@@ -33,9 +58,7 @@
       @apply absolute bottom-2 left-1/2 -translate-x-1/2 flex space-x-1 z-10;
 
       & .carousel-track {
-        --bg-color: var(--color-bg);
-        background: var(--bg-color);
-        @apply transition-all duration-200 ease-out;
+        @apply bg-[var(--track-bg)] transition-all duration-200 ease-out;
 
         &.pill {
           @apply w-4 h-2 rounded-full;
@@ -54,8 +77,23 @@
         }
 
         &.active {
-          --bg-color: var(--color-success);
-          @apply border-black;
+          @apply bg-[var(--track-active-bg)] border-black;
+        }
+      }
+    }
+
+    & .carousel-strip {
+      @apply w-full flex justify-start overflow-x-auto scrollbar-hide h-auto;
+
+      & .carousel-thumb {
+        @apply size-[var(--thumb-size)] rounded-[var(--radius)] shrink-0 border-2 border-transparent bg-transparent overflow-hidden transition;
+
+        & img {
+          @apply w-full h-full object-contain;
+        }
+
+        &.active {
+          @apply border-[var(--active-item-border)] bg-[var(--active-item-bg)];
         }
       }
     }
@@ -74,7 +112,7 @@
     }
 
     &.has-zoom-btn .carousel-zoom-btn {
-      display: flex;
+      @apply flex justify-center items-center;
     }
 
     &.has-zoom-btn .carousel-zoom-btn.click-only {
@@ -89,7 +127,7 @@
       @apply fixed inset-0 z-9999 bg-black/70 m-auto grid place-items-center;
 
       & .carousel-container {
-        @apply h-auto;
+        @apply h-full max-h-[95dvh];
         width: min(95vw, 1200px);
       }
 
@@ -98,12 +136,14 @@
       }
 
       & .carousel .carousel-item img,
-      & .carousel > * img {
+      & .carousel>* img {
         @apply object-contain;
       }
     }
 
-    &.btn-close .carousel-zoom-btn { & .zoom-icon { display: none;
+    &.btn-close .carousel-zoom-btn {
+      & .zoom-icon {
+        display: none;
       }
 
       & .close-icon {
@@ -112,36 +152,18 @@
     }
   }
 
-  .carousel-strip {
-    @apply w-full flex justify-center overflow-x-auto scrollbar-hide h-12 lg:h-14 px-2;
-  }
-
-  .carousel-thumb {
-    @apply aspect-square shrink-0 rounded-lg border-2 border-transparent bg-transparent overflow-hidden transition;
-  }
-
-  .carousel-thumb img {
-    @apply w-full h-full object-cover;
-  }
-
-  .carousel-thumb.active {
-    --border-color: var(--color-success);
-    @apply border-black transition;
-    outline-color: var(--border-color);
-  }
-
   .hover-gallery {
     --items: 1;
     grid-template-columns: repeat(var(--items), 1fr);
     gap: 1px;
     @apply inline-grid flex-center w-full overflow-hidden cursor-pointer;
 
-    & > * {
+    &>* {
       @apply opacity-0 object-cover w-full h-full;
       grid-row: 1;
     }
 
-    & > :first-child {
+    &> :first-child {
       @apply opacity-100 col-span-full;
     }
 
@@ -169,39 +191,39 @@
       --items: 6;
     }
 
-    & > :nth-child(2) {
+    &> :nth-child(2) {
       grid-column: 1;
     }
 
-    & > :nth-child(3) {
+    &> :nth-child(3) {
       grid-column: 2;
     }
 
-    & > :nth-child(4) {
+    &> :nth-child(4) {
       grid-column: 3;
     }
 
-    & > :nth-child(5) {
+    &> :nth-child(5) {
       grid-column: 4;
     }
 
-    & > :nth-child(6) {
+    &> :nth-child(6) {
       grid-column: 5;
     }
 
-    & > :nth-child(7) {
+    &> :nth-child(7) {
       grid-column: 6;
     }
 
-    & > :nth-child(8) {
+    &> :nth-child(8) {
       grid-column: 7;
     }
 
-    &:has(:hover) > :first-child {
+    &:has(:hover)> :first-child {
       @apply opacity-0 hidden;
     }
 
-    & > :hover {
+    &> :hover {
       @apply opacity-100 col-span-full;
     }
   }
@@ -240,7 +262,7 @@
     & .images {
       @apply relative h-full w-full overflow-hidden rounded-lg;
 
-      & > img {
+      &>img {
         @apply absolute inset-0 w-full h-full object-cover scale-95 opacity-0;
         transition:
           scale 300ms,
@@ -248,15 +270,15 @@
       }
     }
 
-    &:has(details:nth-child(1)[open]) .images > img:nth-child(1),
-    &:has(details:nth-child(2)[open]) .images > img:nth-child(2),
-    &:has(details:nth-child(3)[open]) .images > img:nth-child(3),
-    &:has(details:nth-child(4)[open]) .images > img:nth-child(4),
-    &:has(details:nth-child(5)[open]) .images > img:nth-child(5) {
+    &:has(details:nth-child(1)[open]) .images>img:nth-child(1),
+    &:has(details:nth-child(2)[open]) .images>img:nth-child(2),
+    &:has(details:nth-child(3)[open]) .images>img:nth-child(3),
+    &:has(details:nth-child(4)[open]) .images>img:nth-child(4),
+    &:has(details:nth-child(5)[open]) .images>img:nth-child(5) {
       @apply scale-100 opacity-100 z-1;
     }
 
-    &:not(:has(details[open])) .images > .default {
+    &:not(:has(details[open])) .images>.default {
       @apply scale-100 opacity-100 z-1;
     }
   }
@@ -439,7 +461,7 @@
     @apply flex flex-nowrap lg:flex-wrap gap-2 overflow-x-auto py-2 px-0.5;
 
     & .option {
-      & > label {
+      &>label {
         @apply shrink-0 w-16 h-12 rounded border-2 border-transparent relative flex-center text-sm cursor-pointer hover:border-[var(--option-border)] dark:hover:border-neutral-500 hover:scale-105 active:scale-95 transition-all ease-standard duration-200;
         background-color: var(--option-bg);
       }
@@ -449,7 +471,7 @@
       }
 
       &:has(img) {
-        & > label {
+        &>label {
           @apply mb-5 size-16 bg-transparent rounded *:rounded p-0;
 
           img {
@@ -462,7 +484,7 @@
         }
       }
 
-      input:checked + label {
+      input:checked+label {
         @apply scale-105 border-[var(--option-border)] dark:border-neutral-500 font-semibold;
         background-color: --alpha(var(--option-border) / 5%);
       }
@@ -472,7 +494,7 @@
       --option-color: var(--color-white);
 
       & .option {
-        & > label {
+        &>label {
           @apply size-10;
           background-color: var(--option-color, var(--color-neutral-200));
         }
@@ -481,7 +503,7 @@
           @apply sr-only;
         }
 
-        input:checked + label {
+        input:checked+label {
           background-color: var(--option-color);
 
           &::after {
@@ -492,7 +514,7 @@
         }
 
         @container style(--option-color: black) {
-          input:checked + label {
+          input:checked+label {
             --option-border: var(--color-success, var(--color-lime-300));
 
             &::after {
@@ -502,7 +524,7 @@
         }
 
         @container style(--option-color: #000) {
-          input:checked + label {
+          input:checked+label {
             --option-border: var(--color-success, var(--color-lime-300));
 
             &::after {
@@ -512,7 +534,7 @@
         }
 
         @container style(--option-color: #000000) {
-          input:checked + label {
+          input:checked+label {
             --option-border: var(--color-success, var(--color-lime-300));
 
             &::after {
@@ -522,7 +544,7 @@
         }
 
         @container style(--option-color: rgb(0, 0, 0)) {
-          input:checked + label {
+          input:checked+label {
             --option-border: var(--color-success, var(--color-lime-300));
 
             &::after {
@@ -581,6 +603,7 @@
     }
 
     &:hover {
+
       &::before,
       & .tooltip-content,
       &::after {
@@ -590,6 +613,7 @@
     }
 
     &.tooltip-open {
+
       &::before,
       & .tooltip-content,
       &::after {
@@ -599,6 +623,7 @@
     }
 
     &.tooltip-bottom {
+
       &[data-tooltip]:before,
       & .tooltip-content {
         transform: translate(-50%) translateY(var(--tt-pos, -0.25rem));
@@ -606,13 +631,13 @@
       }
 
       &::after {
-        transform: translate(-50%) translateY(var(--tt-pos, -0.25rem))
-          rotate(180deg);
+        transform: translate(-50%) translateY(var(--tt-pos, -0.25rem)) rotate(180deg);
         inset: var(--tt-tail) auto auto 50%;
       }
     }
 
     &.tooltip-left {
+
       &[data-tooltip]:before,
       & .tooltip-content {
         top: 50%;
@@ -623,13 +648,13 @@
       }
 
       &::after {
-        transform: translate(var(--tt-pos, 0.25rem)) translateY(-50%)
-          rotate(-90deg);
+        transform: translate(var(--tt-pos, 0.25rem)) translateY(-50%) rotate(-90deg);
         inset: 50% calc(var(--tt-tail) + 1px) auto auto;
       }
     }
 
     &.tooltip-right {
+
       &[data-tooltip]:before,
       & .tooltip-content {
         top: 50%;
@@ -640,8 +665,7 @@
       }
 
       &::after {
-        transform: translate(var(--tt-pos, -0.25rem)) translateY(-50%)
-          rotate(90deg);
+        transform: translate(var(--tt-pos, -0.25rem)) translateY(-50%) rotate(90deg);
         inset: 50% auto auto calc(100% + 1px + 0.315rem);
       }
     }
@@ -650,7 +674,7 @@
   .swap {
     @apply cursor-pointer align-middle place-content-center inline-grid relative select-none [&>input]:appearance-none [&>input]:border-none;
 
-    & > * {
+    &>* {
       grid-row-start: 1;
       grid-column-start: 1;
       transition-property: transform, rotate, opacity;
@@ -662,36 +686,38 @@
       @apply opacity-0;
     }
 
-    & input:is(:checked, :indeterminate) ~ .swap-on,
+    & input:is(:checked, :indeterminate)~.swap-on,
     &.swap-active .swap-on {
       @apply opacity-100;
       backface-visibility: visible;
     }
 
-    & input:is(:checked, :indeterminate) ~ .swap-off,
+    & input:is(:checked, :indeterminate)~.swap-off,
     &.swap-active .swap-off {
       @apply opacity-0;
     }
 
     &.swap-rotate {
-      & input:is(:checked, :indeterminate) ~ .swap-on,
+
+      & input:is(:checked, :indeterminate)~.swap-on,
       &.swap-active .swap-on {
         @apply rotate-45;
       }
 
-      & input:is(:checked, :indeterminate) ~ .swap-off,
+      & input:is(:checked, :indeterminate)~.swap-off,
       &.swap-active .swap-off {
         @apply -rotate-45;
       }
     }
 
     &.swap-flip {
-      & input:is(:checked, :indeterminate) ~ .swap-on,
+
+      & input:is(:checked, :indeterminate)~.swap-on,
       &.swap-active .swap-on {
         transform: rotateY(180deg);
       }
 
-      & input:is(:checked, :indeterminate) ~ .swap-off,
+      & input:is(:checked, :indeterminate)~.swap-off,
       &.swap-active .swap-off {
         transform: rotateY(-180deg);
       }
@@ -798,12 +824,12 @@
         @apply cursor-pointer sticky top-0 place-self-stretch opacity-0 bg-black/30;
       }
 
-      & > * {
+      &>* {
         grid-row-start: 1;
         grid-column-start: 1;
       }
 
-      & > :not(.drawer-overlay) {
+      &> :not(.drawer-overlay) {
         will-change: transform;
         transition:
           translate 0.3s ease-out,
@@ -816,17 +842,16 @@
       }
     }
 
-    & .drawer-toggle:checked ~ .drawer-side {
+    & .drawer-toggle:checked~.drawer-side {
       @apply pointer-events-auto visible opacity-100 overflow-y-auto;
 
-      scrollbar-color: color-mix(in oklch, currentColor 35%, #0000)
-        oklch(0 0 0 / calc(var(--page-has-backdrop, 0) * 0.4));
+      scrollbar-color: color-mix(in oklch, currentColor 35%, #0000) oklch(0 0 0 / calc(var(--page-has-backdrop, 0) * 0.4));
 
       & .drawer-overlay {
         @apply opacity-100;
       }
 
-      & > :not(.drawer-overlay) {
+      &> :not(.drawer-overlay) {
         @apply translate-x-0;
       }
     }
@@ -856,10 +881,7 @@
       --tab-radius-min: calc(0.75rem - var(--border));
       --tab-radius-limit: min(var(--radius-field), var(--tab-radius-min));
       --tab-radius-grad:
-        #0000 calc(69% - var(--border)), var(--tab-border-color)
-        calc(calc(69% - var(--border)) + 0.25px), var(--tab-border-color)
-        calc(calc(69% - var(--border)) + var(--border)), var(--tab-bg)
-        calc(calc(69% - var(--border)) + var(--border) + 0.25px);
+        #0000 calc(69% - var(--border)), var(--tab-border-color) calc(calc(69% - var(--border)) + 0.25px), var(--tab-border-color) calc(calc(69% - var(--border)) + var(--border)), var(--tab-bg) calc(calc(69% - var(--border)) + var(--border) + 0.25px);
       order: var(--tab-order);
       height: var(--tab-height);
       border-color: #0000;
@@ -896,17 +918,12 @@
       display: none;
     }
 
-    :is(
-        .tab:checked,
-        .tab:is(label:has(:checked)),
-        .tab:is(
-            .tab-active,
-            [aria-selected="true"],
-            [aria-current="true"],
-            [aria-current="page"]
-          )
-      )
-      + .tab-content {
+    :is(.tab:checked,
+      .tab:is(label:has(:checked)),
+      .tab:is(.tab-active,
+        [aria-selected="true"],
+        [aria-current="true"],
+        [aria-current="page"]))+.tab-content {
       @apply block;
     }
 
@@ -972,24 +989,17 @@
 
       & .tab:hover {
         border-color: color-mix(in oklab, var(--lift-border) 60%, transparent);
-        background: color-mix(
-          in oklab,
-          var(--tab-bg, var(--color-neutral-100)) 40%,
-          transparent
-        );
+        background: color-mix(in oklab,
+            var(--tab-bg, var(--color-neutral-100)) 40%,
+            transparent);
       }
 
-      &
-        :is(
-          .tab:checked,
-          .tab:is(label:has(:checked)),
-          .tab:is(
-              .tab-active,
-              [aria-selected="true"],
-              [aria-current="true"],
-              [aria-current="page"]
-            )
-        ) {
+      & :is(.tab:checked,
+        .tab:is(label:has(:checked)),
+        .tab:is(.tab-active,
+          [aria-selected="true"],
+          [aria-current="true"],
+          [aria-current="page"])) {
         --border: 1px;
         background: var(--tab-bg, var(--color-neutral-100));
         border-color: var(--lift-border);
@@ -1005,18 +1015,12 @@
         border-top-right-radius: var(--lift-radius);
       }
 
-      &
-        :is(
-          .tab:checked,
-          .tab:is(label:has(:checked)),
-          .tab:is(
-              .tab-active,
-              [aria-selected="true"],
-              [aria-current="true"],
-              [aria-current="page"]
-            )
-        )
-        + .tab-content {
+      & :is(.tab:checked,
+        .tab:is(label:has(:checked)),
+        .tab:is(.tab-active,
+          [aria-selected="true"],
+          [aria-current="true"],
+          [aria-current="page"]))+.tab-content {
         margin-top: calc(-1 * var(--border));
         border-top-color: var(--lift-border);
       }
@@ -1029,20 +1033,66 @@
 }
 
 @utility carousel-track-bg-* {
-  .carousel-track {
-    --bg-color: --value(--color-*, [color]);
+  .product-image-carousel {
+    --track-bg: --value(--color-*, [color]);
   }
 }
 
 @utility carousel-active-track-bg-* {
-  .carousel-track.active {
-    --bg-color: --value(--color-*, [color]);
+  .product-image-carousel {
+    --track-active-bg: --value(--color-*, [color]);
+  }
+}
+
+@utility carousel-radius-sm {
+  .product-image-carousel {
+    --radius: var(--radius-sm);
+  }
+}
+
+@utility carousel-radius-md {
+  .product-image-carousel {
+    --radius: var(--radius-md);
+  }
+}
+
+@utility carousel-radius-lg {
+  .product-image-carousel {
+    --radius: var(--radius-lg);
+  }
+}
+
+@utility carousel-radius-xl {
+  .product-image-carousel {
+    --radius: var(--radius-xl);
+  }
+}
+
+@utility carousel-radius-2xl {
+  .product-image-carousel {
+    --radius: var(--radius-2xl);
   }
 }
 
 @utility carousel-thumb-active-border-* {
-  .carousel-thumb.active {
-    --border-color: --value(--color-*, [color]);
+  .product-image-carousel {
+    --active-item-border: --value(--color-*, [color]);
+  }
+}
+
+@utility carousel-thumb-active-bg-* {
+  .product-image-carousel {
+    --active-item-bg: --value(--color-*, [color]);
+  }
+}
+
+@utility carousel-strip-lg {
+  .product-image-carousel {
+    --thumb-size: calc(var(--spacing, 0.25rem) * 24);
+  }
+
+  .product-image-carousel .carousel-thumb {
+    border-width: 3px;
   }
 }
 
@@ -1071,15 +1121,13 @@
 }
 
 @utility tabs-fg-active-* {
-  &
-    .tab:is(
-      :checked,
-      label:has(:checked),
-      .tab-active,
-      [aria-selected="true"],
-      [aria-current="true"],
-      [aria-current="page"]
-    ) {
+
+  & .tab:is( :checked,
+    label:has(:checked),
+    .tab-active,
+    [aria-selected="true"],
+    [aria-current="true"],
+    [aria-current="page"]) {
     --tab-fg-active: --value(--color-*, [color]);
   }
 }
